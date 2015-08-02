@@ -31,17 +31,18 @@ namespace hpack
 
 		public int Size { get { return this.size; } }
 
-		/**
-		 * Creates a new dynamic table with the specified initial capacity.
-		 */
+		/// <summary>
+		/// Creates a new dynamic table with the specified initial capacity.
+		/// </summary>
+		/// <param name="initialCapacity">Initial capacity.</param>
 		public DynamicTable(int initialCapacity)
 		{
 			this.SetCapacity(initialCapacity);
 		}
 
-		/**
-		 * Return the number of header fields in the dynamic table.
-		 */
+		/// <summary>
+		/// Return the number of header fields in the dynamic table.
+		/// </summary>
 		public int Length()
 		{
 			int length;
@@ -53,28 +54,32 @@ namespace hpack
 			return length;
 		}
 
-		/**
-		 * Return the current size of the dynamic table.
-		 * This is the sum of the size of the entries.
-		 */
+		/// <summary>
+		/// Return the current size of the dynamic table.
+		/// This is the sum of the size of the entries.
+		/// </summary>
+		/// <returns>The size.</returns>
 		public int GetSize()
 		{
 			return this.size;
 		}
 
-		/**
-		 * Return the maximum allowable size of the dynamic table.
-		 */
+		/// <summary>
+		/// Return the maximum allowable size of the dynamic table.
+		/// </summary>
+		/// <returns>The capacity.</returns>
 		public int GetCapacity()
 		{
 			return capacity;
 		}
 
-		/**
-		* Return the header field at the given index.
-		* The first and newest entry is always at index 1,
-		* and the oldest entry is at the index length().
-		*/
+		/// <summary>
+		/// Return the header field at the given index.
+		/// The first and newest entry is always at index 1,
+		/// and the oldest entry is at the index length().
+		/// </summary>
+		/// <returns>The entry.</returns>
+		/// <param name="index">Index.</param>
 		public HeaderField GetEntry(int index)
 		{
 			if (index <= 0 || index > this.Length()) {
@@ -88,13 +93,14 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Add the header field to the dynamic table.
-		 * Entries are evicted from the dynamic table until the size of the table
-		 * and the new header field is less than or equal to the table's capacity.
-		 * If the size of the new entry is larger than the table's capacity,
-		 * the dynamic table will be cleared.
-		 */
+		/// <summary>
+		/// Add the header field to the dynamic table.
+		/// Entries are evicted from the dynamic table until the size of the table
+		/// and the new header field is less than or equal to the table's capacity.
+		/// If the size of the new entry is larger than the table's capacity,
+		/// the dynamic table will be cleared.
+		/// </summary>
+		/// <param name="header">Header.</param>
 		public void Add(HeaderField header)
 		{
 			int headerSize = header.Size;
@@ -112,9 +118,9 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Remove and return the oldest header field from the dynamic table.
-		 */
+		/// <summary>
+		/// Remove and return the oldest header field from the dynamic table.
+		/// </summary>
 		public HeaderField Remove()
 		{
 			HeaderField removed = headerFields[tail];
@@ -129,9 +135,9 @@ namespace hpack
 			return removed;
 		}
 
-		/**
-		 * Remove all entries from the dynamic table.
-		 */
+		/// <summary>
+		/// Remove all entries from the dynamic table.
+		/// </summary>
 		public void Clear()
 		{
 			while(tail != head) {
@@ -145,11 +151,12 @@ namespace hpack
 			size = 0;
 		}
 
-		/**
-		 * Set the maximum size of the dynamic table.
-		 * Entries are evicted from the dynamic table until the size of the table
-		 * is less than or equal to the maximum size.
-		 */
+		/// <summary>
+		/// Set the maximum size of the dynamic table.
+		/// Entries are evicted from the dynamic table until the size of the table
+		/// is less than or equal to the maximum size.
+		/// </summary>
+		/// <param name="capacity">Capacity.</param>
 		public void SetCapacity(int capacity)
 		{
 			if (capacity < 0) {

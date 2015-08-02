@@ -17,13 +17,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections;
+using System.Text;
 
 namespace hpack
 {
 	public static class StaticTable
 	{
-		// Appendix A: Static Table
-		// http://tools.ietf.org/html/rfc7541#appendix-A
+		/// <summary>
+		/// The static table
+		/// Appendix A: Static Table
+		/// </summary>
+		/// <see cref="http://tools.ietf.org/html/rfc7541#appendix-A"/>
 		private static List<HeaderField> STATIC_TABLE = new List<HeaderField>() {
 			/*  1 */new HeaderField(":authority", String.Empty),
 			/*  2 */new HeaderField(":method", "GET"),
@@ -90,36 +94,44 @@ namespace hpack
 
 		private static Dictionary<string, int> STATIC_INDEX_BY_NAME = CreateMap();
 
-		/**
-		 * The number of header fields in the static table.
-		 */
+		/// <summary>
+		/// The number of header fields in the static table.
+		/// </summary>
+		/// <value>The length.</value>
 		public static int Length { get { return STATIC_TABLE.Count; } }
 
-		/**
-		 * Return the header field at the given index value.
-		 */
+		/// <summary>
+		/// Return the header field at the given index value.
+		/// </summary>
+		/// <returns>The entry.</returns>
+		/// <param name="index">Index.</param>
 		public static HeaderField GetEntry(int index)
 		{
 			return STATIC_TABLE[index - 1];
 		}
 
-		/**
-		 * Returns the lowest index value for the given header field name in the static table.
-		 * Returns -1 if the header field name is not in the static table.
-		 */
+		/// <summary>
+		/// Returns the lowest index value for the given header field name in the static table.
+		/// Returns -1 if the header field name is not in the static table.
+		/// </summary>
+		/// <returns>The index.</returns>
+		/// <param name="name">Name.</param>
 		public static int GetIndex(byte[] name)
 		{
-			string nameString = HpackUtil.ISO_8859_1.GetString(name);
+			string nameString = Encoding.UTF8.GetString(name);
 			if (!STATIC_INDEX_BY_NAME.ContainsKey(nameString)) {
 				return -1;
 			}
 			return STATIC_INDEX_BY_NAME[nameString];
 		}
 
-		/**
-		 * Returns the index value for the given header field in the static table.
-		 * Returns -1 if the header field is not in the static table.
-		 */
+		/// <summary>
+		/// Returns the index value for the given header field in the static table.
+		/// Returns -1 if the header field is not in the static table.
+		/// </summary>
+		/// <returns>The index.</returns>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
 		public static int GetIndex(byte[] name, byte[] value)
 		{
 			int index = GetIndex(name);
@@ -142,7 +154,10 @@ namespace hpack
 			return -1;
 		}
 
-		// create a map of header name to index value to allow quick lookup
+		/// <summary>
+		/// create a map of header name to index value to allow quick lookup
+		/// </summary>
+		/// <returns>The map.</returns>
 		private static Dictionary<string, int> CreateMap()
 		{
 			int length = STATIC_TABLE.Count;
@@ -152,7 +167,7 @@ namespace hpack
 			// save the smallest index for a given name in the map.
 			for(int index = length; index > 0; index--) {
 				HeaderField entry = GetEntry(index);
-				string name = HpackUtil.ISO_8859_1.GetString(entry.Name);
+				string name = Encoding.UTF8.GetString(entry.Name);
 				ret[name] = index;
 			}
 			return ret;

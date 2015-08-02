@@ -25,11 +25,11 @@ namespace hpack
 
 		private Node root;
 
-		/**
-		* Creates a new Huffman decoder with the specified Huffman coding.
-		* @param codes   the Huffman codes indexed by symbol
-		* @param lengths the length of each Huffman code
-		*/
+		/// <summary>
+		/// Creates a new Huffman decoder with the specified Huffman coding.
+		/// </summary>
+		/// <param name="codes">the Huffman codes indexed by symbol</param>
+		/// <param name="lengths">the length of each Huffman code</param>
 		public HuffmanDecoder(int[] codes, byte[] lengths)
 		{
 			if (codes.Length != 257 || codes.Length != lengths.Length) {
@@ -38,14 +38,12 @@ namespace hpack
 			this.root = BuildTree(codes, lengths);
 		}
 
-		/**
-		* Decompresses the given Huffman coded string literal.
-		* @param  buf the string literal to be decoded
-		* @return the output stream for the compressed data
-		* @throws IOException if an I/O error occurs. In particular,
-		*         an <code>IOException</code> may be thrown if the
-		*         output stream has been closed.
-		*/
+		/// <summary>
+		/// Decompresses the given Huffman coded string literal.
+		/// </summary>
+		/// <param name="buf">the string literal to be decoded</param>
+		/// <returns>the output stream for the compressed data</returns>
+		/// <exception cref="IOException">throws IOException if an I/O error occurs. In particular, an <code>IOException</code> may be thrown if the output stream has been closed.</exception>
 		public byte[] Decode(byte[] buf)
 		{
 			using(var baos = new MemoryStream()) {
@@ -109,9 +107,9 @@ namespace hpack
 
 			public Node[] Children { get { return this.children; } }
 
-			/**
-			 * Construct an internal node
-			 */
+			/// <summary>
+			/// Initializes a new instance of the <see cref="hpack.HuffmanDecoder+Node"/> class.
+			/// </summary>
 			public Node()
 			{
 				symbol = 0;
@@ -119,11 +117,11 @@ namespace hpack
 				children = new Node[256];
 			}
 
-			/**
-			* Construct a terminal node
-			* @param symbol the symbol the node represents
-			* @param bits   the number of bits matched by this node
-			*/
+			/// <summary>
+			/// Initializes a new instance of the <see cref="hpack.HuffmanDecoder+Node"/> class.
+			/// </summary>
+			/// <param name="symbol">the symbol the node represents</param>
+			/// <param name="bits">the number of bits matched by this node</param>
 			public Node(int symbol, int bits)
 			{
 				//assert(bits > 0 && bits <= 8);

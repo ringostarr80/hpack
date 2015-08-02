@@ -23,39 +23,37 @@ namespace hpack
 		private int[] codes;
 		private byte[] lengths;
 
-		/**
-		 * Creates a new Huffman encoder with the specified Huffman coding.
-		 * @param codes   the Huffman codes indexed by symbol
-		 * @param lengths the length of each Huffman code
-		 */
+		/// <summary>
+		/// Creates a new Huffman encoder with the specified Huffman coding.
+		/// </summary>
+		/// <param name="codes">the Huffman codes indexed by symbol</param>
+		/// <param name="lengths">the length of each Huffman code</param>
 		public HuffmanEncoder(int[] codes, byte[] lengths)
 		{
 			this.codes = codes;
 			this.lengths = lengths;
 		}
 
-		/**
-		 * Compresses the input string literal using the Huffman coding.
-		 * @param  out  the output stream for the compressed data
-		 * @param  data the string literal to be Huffman encoded
-		 * @throws IOException if an I/O error occurs.
-		 * @see    com.twitter.hpack.HuffmanEncoder#encode(OutputStream, byte[], int, int)
-		 */
+		/// <summary>
+		/// Compresses the input string literal using the Huffman coding.
+		/// </summary>
+		/// <param name="output">the output stream for the compressed data</param>
+		/// <param name="data">the string literal to be Huffman encoded</param>
+		/// <exception cref="IOException">if an I/O error occurs.</exception>
+		/// <see cref="com.twitter.hpack.HuffmanEncoder#encode(OutputStream, byte[], int, int)"/>
 		public void Encode(BinaryWriter output, byte[] data)
 		{
 			this.Encode(output, data, 0, data.Length);
 		}
 
-		/**
-		 * Compresses the input string literal using the Huffman coding.
-		 * @param  out  the output stream for the compressed data
-		 * @param  data the string literal to be Huffman encoded
-		 * @param  off  the start offset in the data
-		 * @param  len  the number of bytes to encode
-		 * @throws IOException if an I/O error occurs. In particular,
-		 *         an <code>IOException</code> may be thrown if the
-		 *         output stream has been closed.
-		 */
+		/// <summary>
+		/// Compresses the input string literal using the Huffman coding.
+		/// </summary>
+		/// <param name="output">the output stream for the compressed data</param>
+		/// <param name="data">the string literal to be Huffman encoded</param>
+		/// <param name="off">the start offset in the data</param>
+		/// <param name="len">the number of bytes to encode</param>
+		/// <exception cref="IOException">if an I/O error occurs. In particular, an <code>IOException</code> may be thrown if the output stream has been closed.</exception>
 		public void Encode(BinaryWriter output, byte[] data, int off, int len)
 		{
 			if (output == null) {
@@ -93,11 +91,11 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Returns the number of bytes required to Huffman encode the input string literal.
-		 * @param  data the string literal to be Huffman encoded
-		 * @return the number of bytes required to Huffman encode <code>data</code>
-		 */
+		/// <summary>
+		/// Returns the number of bytes required to Huffman encode the input string literal.
+		/// </summary>
+		/// <returns>the number of bytes required to Huffman encode <code>data</code></returns>
+		/// <param name="data">the string literal to be Huffman encoded</param>
 		public int GetEncodedLength(byte[] data)
 		{
 			if (data == null) {

@@ -17,10 +17,13 @@ namespace hpack
 {
 	public interface IHeaderListener
 	{
-		/**
-		 * emitHeader is called by the decoder during header field emission.
-		 * The name and value byte arrays must not be modified.
-		 */
+		/// <summary>
+		/// EmitHeader is called by the decoder during header field emission.
+		/// The name and value byte arrays must not be modified.
+		/// </summary>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
+		/// <param name="sensitive">If set to <c>true</c> sensitive.</param>
 		void AddHeader(byte[] name, byte[] value, bool sensitive);
 	}
 }
