@@ -87,10 +87,10 @@ hpack.Encoder hpackEncoder = new hpack.Encoder(4096);
 hpack.Decoder hpackDecoder = new hpack.Decoder(8192, 4096);
 
 using(var binWriter = new BinaryWriter(new MemoryStream())) {
-  hpackEncoder.Encodeheader(binWriter, ":authority", "localhost:8080");
-  hpackEncoder.Encodeheader(binWriter, ":method", "GET");
-  hpackEncoder.Encodeheader(binWriter, ":path", "/");
-  hpackEncoder.Encodeheader(binWriter, ":scheme", "http");
+  hpackEncoder.EncodeHeader(binWriter, ":authority", "localhost:8080");
+  hpackEncoder.EncodeHeader(binWriter, ":method", "GET");
+  hpackEncoder.EncodeHeader(binWriter, ":path", "/");
+  hpackEncoder.EncodeHeader(binWriter, ":scheme", "http");
   
   // send the data (binWriter) to the server!
   
