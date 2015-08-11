@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		NOTICE = NOTICE
 		README.md = README.md
+		hpack.nuspec = hpack.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit", "nunit\nunit.csproj", "{C33BCF20-BA88-4E45-B435-A2A92F61CEF5}"
@@ -152,5 +153,31 @@ Global
 		$24.IncludeStaticEntities = True
 		$0.VersionControlPolicy = $26
 		$26.inheritsSet = Mono
+		$0.TextStylePolicy = $27
+		$27.inheritsSet = null
+		$27.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $28
+		$28.IndentSwitchBody = True
+		$28.AlignEmbeddedStatements = False
+		$28.BeforeMethodDeclarationParentheses = False
+		$28.BeforeMethodCallParentheses = False
+		$28.BeforeConstructorDeclarationParentheses = False
+		$28.NewLineBeforeConstructorInitializerColon = SameLine
+		$28.NewLineAfterConstructorInitializerColon = SameLine
+		$28.BeforeIndexerDeclarationBracket = False
+		$28.BeforeDelegateDeclarationParentheses = False
+		$28.AfterDelegateDeclarationParameterComma = True
+		$28.NewParentheses = False
+		$28.WhileParentheses = False
+		$28.ForParentheses = False
+		$28.ForeachParentheses = False
+		$28.CatchParentheses = False
+		$28.SwitchParentheses = False
+		$28.LockParentheses = False
+		$28.UsingParentheses = False
+		$28.SpacesBeforeBrackets = False
+		$28.inheritsSet = Mono
+		$28.inheritsScope = text/x-csharp
+		$28.scope = text/x-csharp
 	EndGlobalSection
 EndGlobal

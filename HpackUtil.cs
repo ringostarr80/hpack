@@ -20,11 +20,11 @@ namespace hpack
 {
 	public class HpackUtil
 	{
-		public static Encoding ISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
-
-		/**
-		 * A string compare that doesn't leak timing information.
-		 */
+		/// <summary>
+		/// A string compare that doesn't leak timing information.
+		/// </summary>
+		/// <param name="s1">S1.</param>
+		/// <param name="s2">S2.</param>
 		public static bool Equals(byte[] s1, byte[] s2)
 		{
 			if (s1.Length != s2.Length) {
@@ -37,9 +37,11 @@ namespace hpack
 			return c == 0;
 		}
 
-		/**
-		 * Checks that the specified object reference is not {@code null}.
-		 */
+		/// <summary>
+		/// Checks that the specified object reference is not {@code null}.
+		/// </summary>
+		/// <returns>The non null.</returns>
+		/// <param name="obj">Object.</param>
 		public static object RequireNonNull(object obj)
 		{
 			if (obj == null) {

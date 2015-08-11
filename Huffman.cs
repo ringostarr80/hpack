@@ -17,14 +17,14 @@ namespace hpack
 {
 	public class Huffman
 	{
-		/**
-		 * Huffman Decoder
-		 */
+		/// <summary>
+		/// Huffman Decoder
+		/// </summary>
 		public static HuffmanDecoder DECODER = new HuffmanDecoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
 
-		/**
-		 * Huffman Encoder
-		 */
+		/// <summary>
+		/// Huffman Encoder
+		/// </summary>
 		public static HuffmanEncoder ENCODER = new HuffmanEncoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
 
 		private Huffman()

@@ -37,8 +37,8 @@ namespace hpack
 		// This constructor can only be used if name and value are ISO-8859-1 encoded.
 		public HeaderField(string name, string value)
 		{
-			this.name = HpackUtil.ISO_8859_1.GetBytes(name);
-			this.value = HpackUtil.ISO_8859_1.GetBytes(value);
+			this.name = Encoding.UTF8.GetBytes(name);
+			this.value = Encoding.UTF8.GetBytes(value);
 		}
 
 		public HeaderField(byte[] name, byte[] value)
@@ -52,7 +52,6 @@ namespace hpack
 			return name.Length + value.Length + HEADER_ENTRY_OVERHEAD;
 		}
 
-		//@Override
 		public int CompareTo(HeaderField anotherHeaderField)
 		{
 			int ret = this.CompareTo(name, anotherHeaderField.name);

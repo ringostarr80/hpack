@@ -21,8 +21,6 @@ namespace hpack
 	public class Decoder
 	{
 		private static IOException DECOMPRESSION_EXCEPTION = new IOException("decompression failure");
-		private static IOException INVALID_MAX_DYNAMIC_TABLE_SIZE = new IOException("invalid max dynamic table size");
-		private static IOException MAX_DYNAMIC_TABLE_SIZE_CHANGE_REQUIRED = new IOException("max dynamic table size change required");
 
 		private static byte[] EMPTY = { };
 
@@ -59,9 +57,11 @@ namespace hpack
 			SKIP_LITERAL_HEADER_VALUE
 		}
 
-		/**
-		* Creates a new decoder.
-		*/
+		/// <summary>
+		/// Initializes a new instance of the <see cref="hpack.Decoder"/> class.
+		/// </summary>
+		/// <param name="maxHeaderSize">Max header size.</param>
+		/// <param name="maxHeaderTableSize">Max header table size.</param>
 		public Decoder(int maxHeaderSize, int maxHeaderTableSize)
 		{
 			this.dynamicTable = new DynamicTable(maxHeaderTableSize);
@@ -79,9 +79,11 @@ namespace hpack
 			this.indexType = HpackUtil.IndexType.NONE;
 		}
 
-		/**
-		 * Decode the header block into header fields.
-		 */
+		/// <summary>
+		/// Decode the header block into header fields.
+		/// </summary>
+		/// <param name="input">Input.</param>
+		/// <param name="headerListener">Header listener.</param>
 		public void Decode(BinaryReader input, IHeaderListener headerListener)
 		{
 			while(input.BaseStream.Length - input.BaseStream.Position > 0) {
@@ -90,7 +92,7 @@ namespace hpack
 						sbyte b = input.ReadSByte();
 						if (maxDynamicTableSizeChangeRequired && (b & 0xE0) != 0x20) {
 							// Encoder MUST signal maximum dynamic table size change
-							throw MAX_DYNAMIC_TABLE_SIZE_CHANGE_REQUIRED;
+							throw new IOException("max dynamic table size change required");
 						}
 						if (b < 0) {
 							// Indexed Header Field
@@ -379,10 +381,11 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * End the current header block. Returns if the header field has been truncated.
-		 * This must be called after the header block has been completely decoded.
-		 */
+		/// <summary>
+		/// End the current header block. Returns if the header field has been truncated.
+		/// This must be called after the header block has been completely decoded.
+		/// </summary>
+		/// <returns><c>true</c>, if header block was ended, <c>false</c> otherwise.</returns>
 		public bool EndHeaderBlock()
 		{
 			bool truncated = headerSize > maxHeaderSize;
@@ -390,11 +393,12 @@ namespace hpack
 			return truncated;
 		}
 
-		/**
-		 * Set the maximum table size.
-		 * If this is below the maximum size of the dynamic table used by the encoder,
-		 * the beginning of the next header block MUST signal this change.
-		 */
+		/// <summary>
+		/// Set the maximum table size.
+		/// If this is below the maximum size of the dynamic table used by the encoder,
+		/// the beginning of the next header block MUST signal this change.
+		/// </summary>
+		/// <param name="maxHeaderTableSize">Max header table size.</param>
 		public void SetMaxHeaderTableSize(int maxHeaderTableSize)
 		{
 			maxDynamicTableSize = maxHeaderTableSize;
@@ -406,37 +410,40 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Return the maximum table size.
-		 * This is the maximum size allowed by both the encoder and the decoder.
-		 */
+		/// <summary>
+		/// Return the maximum table size.
+		/// This is the maximum size allowed by both the encoder and the decoder.
+		/// </summary>
+		/// <returns>The max header table size.</returns>
 		public int GetMaxHeaderTableSize()
 		{
 			return this.dynamicTable.Capacity;
 		}
 
-		/**
-		 * Return the number of header fields in the dynamic table.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the number of header fields in the dynamic table.
+		/// Exposed for testing.
+		/// </summary>
 		int Length()
 		{
 			return this.dynamicTable.Length();
 		}
 
-		/**
-		 * Return the size of the dynamic table.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the size of the dynamic table.
+		/// Exposed for testing.
+		/// </summary>
 		int Size()
 		{
 			return this.dynamicTable.Size;
 		}
 
-		/**
-		 * Return the header field at the given index.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the header field at the given index.
+		/// Exposed for testing.
+		/// </summary>
+		/// <returns>The header field.</returns>
+		/// <param name="index">Index.</param>
 		HeaderField GetHeaderField(int index)
 		{
 			return this.dynamicTable.GetEntry(index + 1);
@@ -445,7 +452,7 @@ namespace hpack
 		private void SetDynamicTableSize(int dynamicTableSize)
 		{
 			if (dynamicTableSize > this.maxDynamicTableSize) {
-				throw INVALID_MAX_DYNAMIC_TABLE_SIZE;
+				throw new IOException("invalid max dynamic table size");
 			}
 			this.encoderMaxDynamicTableSize = dynamicTableSize;
 			this.maxDynamicTableSizeChangeRequired = false;

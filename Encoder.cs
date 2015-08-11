@@ -34,17 +34,23 @@ namespace hpack
 		private int size;
 		private int capacity;
 
-		/**
-		 * Creates a new encoder.
-		 */
+		/// <summary>
+		/// Initializes a new instance of the <see cref="hpack.Encoder"/> class.
+		/// </summary>
+		/// <param name="maxHeaderTableSize">Max header table size.</param>
 		public Encoder(int maxHeaderTableSize)
 		{
 			this.Init(maxHeaderTableSize, true, false, false);
 		}
 
-		/**
-		 * Constructor for testing only.
-		 */
+		/// <summary>
+		/// Initializes a new instance of the <see cref="hpack.Encoder"/> class.
+		/// for testing only.
+		/// </summary>
+		/// <param name="maxHeaderTableSize">Max header table size.</param>
+		/// <param name="useIndexing">If set to <c>true</c> use indexing.</param>
+		/// <param name="forceHuffmanOn">If set to <c>true</c> force huffman on.</param>
+		/// <param name="forceHuffmanOff">If set to <c>true</c> force huffman off.</param>
 		public Encoder(int maxHeaderTableSize, bool useIndexing, bool forceHuffmanOn, bool forceHuffmanOff)
 		{
 			this.Init(maxHeaderTableSize, useIndexing, forceHuffmanOn, forceHuffmanOff);
@@ -62,9 +68,13 @@ namespace hpack
 			head.Before = head.After = head;
 		}
 
-		/**
-		 * Encode the header field into the header block.
-		 */
+		/// <summary>
+		/// Encode the header field into the header block.
+		/// </summary>
+		/// <param name="output">Output.</param>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
+		/// <param name="sensitive">If set to <c>true</c> sensitive.</param>
 		public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value, bool sensitive)
 		{
 			// If the header value is sensitive then it must never be indexed
@@ -119,9 +129,11 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Set the maximum table size.
-		 */
+		/// <summary>
+		/// Set the maximum table size.
+		/// </summary>
+		/// <param name="output">Output.</param>
+		/// <param name="maxHeaderTableSize">Max header table size.</param>
 		public void SetMaxHeaderTableSize(BinaryWriter output, int maxHeaderTableSize)
 		{
 			if (maxHeaderTableSize < 0) {
@@ -135,17 +147,22 @@ namespace hpack
 			Encoder.EncodeInteger(output, 0x20, 5, maxHeaderTableSize);
 		}
 
-		/**
-		 * Return the maximum table size.
-		 */
+		/// <summary>
+		/// Return the maximum table size.
+		/// </summary>
+		/// <returns>The max header table size.</returns>
 		public int GetMaxHeaderTableSize()
 		{
 			return this.capacity;
 		}
 
-		/**
-		 * Encode integer according to Section 5.1.
-		 */
+		/// <summary>
+		/// Encode integer according to Section 5.1.
+		/// </summary>
+		/// <param name="output">Output.</param>
+		/// <param name="mask">Mask.</param>
+		/// <param name="n">N.</param>
+		/// <param name="i">The index.</param>
 		private static void EncodeInteger(BinaryWriter output, int mask, int n, int i)
 		{
 			if (n < 0 || n > 8) {
@@ -169,9 +186,11 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Encode string literal according to Section 5.2.
-		 */
+		/// <summary>
+		/// Encode string literal according to Section 5.2.
+		/// </summary>
+		/// <param name="output">Output.</param>
+		/// <param name="stringLiteral">String literal.</param>
 		private void EncodeStringLiteral(BinaryWriter output, byte[] stringLiteral)
 		{
 			int huffmanLength = Huffman.ENCODER.GetEncodedLength(stringLiteral);
@@ -184,9 +203,14 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Encode literal header field according to Section 6.2.
-		 */
+		/// <summary>
+		/// Encode literal header field according to Section 6.2.
+		/// </summary>
+		/// <param name="output">Output.</param>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
+		/// <param name="indexType">Index type.</param>
+		/// <param name="nameIndex">Name index.</param>
 		private void EncodeLiteral(BinaryWriter output, byte[] name, byte[] value, HpackUtil.IndexType indexType, int nameIndex)
 		{
 			int mask;
@@ -229,10 +253,11 @@ namespace hpack
 			return index;
 		}
 
-		/**
-		 * Ensure that the dynamic table has enough room to hold 'headerSize' more bytes.
-		 * Removes the oldest entry from the dynamic table until sufficient space is available.
-		 */
+		/// <summary>
+		/// Ensure that the dynamic table has enough room to hold 'headerSize' more bytes.
+		/// Removes the oldest entry from the dynamic table until sufficient space is available.
+		/// </summary>
+		/// <param name="headerSize">Header size.</param>
 		private void EnsureCapacity(int headerSize)
 		{
 			while(this.size + headerSize > this.capacity) {
@@ -244,28 +269,31 @@ namespace hpack
 			}
 		}
 
-		/**
-		 * Return the number of header fields in the dynamic table.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the number of header fields in the dynamic table.
+		/// Exposed for testing.
+		/// </summary>
 		int Length()
 		{
 			return this.size == 0 ? 0 : this.head.After.Index - this.head.Before.Index + 1;
 		}
 
-		/**
-		 * Return the size of the dynamic table.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the size of the dynamic table.
+		/// Exposed for testing.
+		/// </summary>
+		/// <returns>The size.</returns>
 		int GetSize()
 		{
 			return this.size;
 		}
 
-		/**
-		 * Return the header field at the given index.
-		 * Exposed for testing.
-		 */
+		/// <summary>
+		/// Return the header field at the given index.
+		/// Exposed for testing.
+		/// </summary>
+		/// <returns>The header field.</returns>
+		/// <param name="index">Index.</param>
 		HeaderField GetHeaderField(int index)
 		{
 			HeaderEntry entry = head;
@@ -275,10 +303,13 @@ namespace hpack
 			return entry;
 		}
 
-		/**
-		 * Returns the header entry with the lowest index value for the header field.
-		 * Returns null if header field is not in the dynamic table.
-		 */
+		/// <summary>
+		/// Returns the header entry with the lowest index value for the header field.
+		/// Returns null if header field is not in the dynamic table.
+		/// </summary>
+		/// <returns>The entry.</returns>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
 		private HeaderEntry GetEntry(byte[] name, byte[] value)
 		{
 			if (this.Length() == 0 || name == null || value == null) {
@@ -294,10 +325,12 @@ namespace hpack
 			return null;
 		}
 
-		/**
-		 * Returns the lowest index value for the header field name in the dynamic table.
-		 * Returns -1 if the header field name is not in the dynamic table.
-		 */
+		/// <summary>
+		/// Returns the lowest index value for the header field name in the dynamic table.
+		/// Returns -1 if the header field name is not in the dynamic table.
+		/// </summary>
+		/// <returns>The index.</returns>
+		/// <param name="name">Name.</param>
 		private int GetIndex(byte[] name)
 		{
 			if (this.Length() == 0 || name == null) {
@@ -315,9 +348,11 @@ namespace hpack
 			return this.GetIndex(index);
 		}
 
-		/**
-		 * Compute the index into the dynamic table given the index in the header entry.
-		 */
+		/// <summary>
+		/// Compute the index into the dynamic table given the index in the header entry.
+		/// </summary>
+		/// <returns>The index.</returns>
+		/// <param name="index">Index.</param>
 		private int GetIndex(int index)
 		{
 			if (index == -1) {
@@ -326,13 +361,15 @@ namespace hpack
 			return index - head.Before.Index + 1;
 		}
 
-		/**
-		 * Add the header field to the dynamic table.
-		 * Entries are evicted from the dynamic table until the size of the table
-		 * and the new header field is less than the table's capacity.
-		 * If the size of the new entry is larger than the table's capacity,
-		 * the dynamic table will be cleared.
-		 */
+		/// <summary>
+		/// Add the header field to the dynamic table.
+		/// Entries are evicted from the dynamic table until the size of the table
+		/// and the new header field is less than the table's capacity.
+		/// If the size of the new entry is larger than the table's capacity,
+		/// the dynamic table will be cleared.
+		/// </summary>
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
 		private void Add(byte[] name, byte[] value)
 		{
 			int headerSize = HeaderField.SizeOf(name, value);
@@ -361,9 +398,9 @@ namespace hpack
 			this.size += headerSize;
 		}
 
-		/**
-		 * Remove and return the oldest header field from the dynamic table.
-		 */
+		/// <summary>
+		/// Remove and return the oldest header field from the dynamic table.
+		/// </summary>
 		private HeaderField Remove()
 		{
 			if (this.size == 0) {
@@ -392,9 +429,9 @@ namespace hpack
 			return null;
 		}
 
-		/**
-		 * Remove all entries from the dynamic table.
-		 */
+		/// <summary>
+		/// Remove all entries from the dynamic table.
+		/// </summary>
 		private void Clear()
 		{
 			for(int i = 0; i < headerFields.Length; i++) {
@@ -404,9 +441,11 @@ namespace hpack
 			this.size = 0;
 		}
 
-		/**
-		 * Returns the hash code for the given header field name.
-		 */
+		/// <summary>
+		/// Returns the hash code for the given header field name.
+		/// </summary>
+		/// <returns><c>true</c> if hash name; otherwise, <c>false</c>.</returns>
+		/// <param name="name">Name.</param>
 		private static int Hash(byte[] name)
 		{
 			int h = 0;
@@ -422,17 +461,18 @@ namespace hpack
 				}
 		}
 
-		/**
-		 * Returns the index into the hash table for the hash code h.
-		 */
+		/// <summary>
+		/// Returns the index into the hash table for the hash code h.
+		/// </summary>
+		/// <param name="h">The height.</param>
 		private static int Index(int h)
 		{
 			return h % BUCKET_SIZE;
 		}
 
-		/**
-		 * A linked hash map HeaderField entry.
-		 */
+		/// <summary>
+		/// A linked hash map HeaderField entry.
+		/// </summary>
 		private class HeaderEntry : HeaderField
 		{
 			// These fields comprise the doubly linked list used for iteration.
@@ -455,9 +495,14 @@ namespace hpack
 
 			public int Index { get { return this.index; } }
 
-			/**
-			 * Creates new entry.
-			 */
+			/// <summary>
+			/// Creates new entry.
+			/// </summary>
+			/// <param name="hash">Hash.</param>
+			/// <param name="name">Name.</param>
+			/// <param name="value">Value.</param>
+			/// <param name="index">Index.</param>
+			/// <param name="next">Next.</param>
 			public HeaderEntry(int hash, byte[] name, byte[] value, int index, HeaderEntry next) : base(name, value)
 			{
 				this.index = index;
@@ -465,18 +510,19 @@ namespace hpack
 				this.next = next;
 			}
 
-			/**
-			 * Removes this entry from the linked list.
-			 */
+			/// <summary>
+			/// Removes this entry from the linked list.
+			/// </summary>
 			public void Remove()
 			{
 				before.after = after;
 				after.before = before;
 			}
 
-			/**
-			 * Inserts this entry before the specified existing entry in the list.
-			 */
+			/// <summary>
+			/// Inserts this entry before the specified existing entry in the list.
+			/// </summary>
+			/// <param name="existingEntry">Existing entry.</param>
 			public void AddBefore(HeaderEntry existingEntry)
 			{
 				after = existingEntry;

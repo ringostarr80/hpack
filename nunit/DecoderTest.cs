@@ -44,7 +44,7 @@ namespace hpack
 
 		private static byte[] getBytes(string s)
 		{
-			return HpackUtil.ISO_8859_1.GetBytes(s);
+			return Encoding.UTF8.GetBytes(s);
 		}
 
 		private void decode(string encoded)
