@@ -15,6 +15,7 @@
  */
 using System;
 using System.IO;
+using System.Text;
 
 namespace hpack
 {
@@ -67,6 +68,21 @@ namespace hpack
 			this.capacity = maxHeaderTableSize;
 			head.Before = head.After = head;
 		}
+
+        public void EncodeHeader(BinaryWriter output, string name, string value)
+        {
+            this.EncodeHeader(output, name, value, false);
+        }
+
+        public void EncodeHeader(BinaryWriter output, string name, string value, bool sensitive)
+        {
+            this.EncodeHeader(output, Encoding.UTF8.GetBytes(name), Encoding.UTF8.GetBytes(value), sensitive);
+        }
+
+        public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value)
+        {
+            this.EncodeHeader(output, name, value, false);
+        }
 
 		/// <summary>
 		/// Encode the header field into the header block.
