@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.ObjectModel;
-using NUnit.Framework;
-using System.IO;
 
 namespace hpack
 {

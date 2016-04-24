@@ -15,8 +15,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections;
 using System.Text;
 
 namespace hpack
@@ -118,7 +116,7 @@ namespace hpack
 		/// <param name="name">Name.</param>
 		public static int GetIndex(byte[] name)
 		{
-			string nameString = Encoding.UTF8.GetString(name);
+			var nameString = Encoding.UTF8.GetString(name);
 			if (!STATIC_INDEX_BY_NAME.ContainsKey(nameString)) {
 				return -1;
 			}
@@ -134,14 +132,14 @@ namespace hpack
 		/// <param name="value">Value.</param>
 		public static int GetIndex(byte[] name, byte[] value)
 		{
-			int index = GetIndex(name);
+			var index = GetIndex(name);
 			if (index == -1) {
 				return -1;
 			}
 
 			// Note this assumes all entries for a given header field are sequential.
 			while(index <= StaticTable.Length) {
-				HeaderField entry = GetEntry(index);
+				var entry = GetEntry(index);
 				if (!HpackUtil.Equals(name, entry.Name)) {
 					break;
 				}
@@ -160,14 +158,14 @@ namespace hpack
 		/// <returns>The map.</returns>
 		private static Dictionary<string, int> CreateMap()
 		{
-			int length = STATIC_TABLE.Count;
+			var length = STATIC_TABLE.Count;
 			var ret = new Dictionary<string, int>(length);
 
 			// Iterate through the static table in reverse order to
 			// save the smallest index for a given name in the map.
-			for(int index = length; index > 0; index--) {
-				HeaderField entry = GetEntry(index);
-				string name = Encoding.UTF8.GetString(entry.Name);
+			for(var index = length; index > 0; index--) {
+				var entry = GetEntry(index);
+				var name = Encoding.UTF8.GetString(entry.Name);
 				ret[name] = index;
 			}
 			return ret;

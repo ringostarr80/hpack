@@ -37,7 +37,7 @@ namespace hpack
 		private Decoder decoder;
 		private IHeaderListener mockListener;
 
-		private static String hex(string s)
+		private static string hex(string s)
 		{
 			return Hex.EncodeHexString(Encoding.UTF8.GetBytes(s));
 		}
@@ -49,9 +49,9 @@ namespace hpack
 
 		private void decode(string encoded)
 		{
-			sbyte[] b = Hex.DecodeHex(encoded.ToCharArray());
-			byte[] input = new byte[b.Length];
-			for(int i = 0; i < b.Length; i++) {
+			var b = Hex.DecodeHex(encoded.ToCharArray());
+			var input = new byte[b.Length];
+			for(var i = 0; i < b.Length; i++) {
 				input[i] = (byte)b[i];
 			}
 			this.decoder.Decode(new BinaryReader(new MemoryStream(input)), this.mockListener);
@@ -69,9 +69,9 @@ namespace hpack
 		public void testIncompleteIndex()
 		{
 			// Verify incomplete indices are unread
-			sbyte[] compressed = Hex.DecodeHex("FFF0".ToCharArray());
-			byte[] compressedInput = new byte[compressed.Length];
-			for(int i = 0; i < compressed.Length; i++) {
+			var compressed = Hex.DecodeHex("FFF0".ToCharArray());
+			var compressedInput = new byte[compressed.Length];
+			for(var i = 0; i < compressed.Length; i++) {
 				compressedInput[i] = (byte)compressed[i];
 			}
 			using(var input = new BinaryReader(new MemoryStream(compressedInput))) {
@@ -83,27 +83,24 @@ namespace hpack
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testUnusedIndex()
 		{
 			// Index 0 is not used
-			this.decode("80");
+			Assert.Throws<IOException>(delegate { this.decode("80"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testIllegalIndex()
 		{
 			// Index larger than the header table
-			this.decode("FF00");
+			Assert.Throws<IOException>(delegate { this.decode("FF00"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testInsidiousIndex()
 		{
 			// Insidious index so the last shift causes sign overflow
-			this.decode("FF8080808008");
+			Assert.Throws<IOException>(delegate { this.decode("FF8080808008"); });
 		}
 
 		[Test]
@@ -124,19 +121,17 @@ namespace hpack
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testIllegalDynamicTableSizeUpdate()
 		{
 			// max header table size = MAX_HEADER_TABLE_SIZE + 1
-			this.decode("3FE21F");
+			Assert.Throws<IOException>(delegate { this.decode("3FE21F"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testInsidiousMaxDynamicTableSize()
 		{
 			// max header table size sign overflow
-			this.decode("3FE1FFFFFF07");
+			Assert.Throws<IOException>(delegate { this.decode("3FE1FFFFFF07"); });
 		}
 
 		[Test]
@@ -148,28 +143,25 @@ namespace hpack
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testTooLargeDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
-			this.decode("21"); // encoder max header table size not small enough
+			Assert.Throws<IOException>(delegate { this.decode("21"); }); // encoder max header table size not small enough
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testMissingDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
-			this.decode("81");
+			Assert.Throws<IOException>(delegate { this.decode("81"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralWithIncrementalIndexingWithEmptyName()
 		{
-			this.decode("000005" + hex("value"));
+			Assert.Throws<IOException>(delegate { this.decode("000005" + hex("value")); });
 		}
 
 		[Test]
@@ -182,14 +174,14 @@ namespace hpack
 			Assert.IsFalse(decoder.EndHeaderBlock());
 
 			//reset(this.mockListener);
-			StringBuilder sb = new StringBuilder();
-			for(int i = 0; i < 4096; i++) {
+			var sb = new StringBuilder();
+			for(var i = 0; i < 4096; i++) {
 				sb.Append("a");
 			}
 			//String value = sb.ToString();
 			sb = new StringBuilder();
 			sb.Append("417F811F");
-			for(int i = 0; i < 4096; i++) {
+			for(var i = 0; i < 4096; i++) {
 				sb.Append("61"); // 'a'
 			}
 			this.decode(sb.ToString());
@@ -207,9 +199,9 @@ namespace hpack
 		public void testLiteralWithIncrementalIndexingWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("407F817F");
-			for(int i = 0; i < 16384; i++) {
+			for(var i = 0; i < 16384; i++) {
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
@@ -229,11 +221,11 @@ namespace hpack
 		public void testLiteralWithIncrementalIndexingWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("4004");
 			sb.Append(hex("name"));
 			sb.Append("7F813F");
-			for(int i = 0; i < 8192; i++) {
+			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
 			this.decode(sb.ToString());
@@ -249,20 +241,18 @@ namespace hpack
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralWithoutIndexingWithEmptyName()
 		{
-			this.decode("000005" + hex("value"));
+			Assert.Throws<IOException>(delegate { this.decode("000005" + hex("value")); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralWithoutIndexingWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("007F817F");
-			for(int i = 0; i < 16384; i++) {
+			for(var i = 0; i < 16384; i++) {
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
@@ -273,19 +263,18 @@ namespace hpack
 			Assert.IsTrue(decoder.EndHeaderBlock());
 
 			// Verify table is unmodified
-			this.decode("BE");
+			Assert.Throws<IOException>(delegate { this.decode("BE"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralWithoutIndexingWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("0004");
 			sb.Append(hex("name"));
 			sb.Append("7F813F");
-			for(int i = 0; i < 8192; i++) {
+			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
 			this.decode(sb.ToString());
@@ -295,24 +284,22 @@ namespace hpack
 			Assert.IsTrue(decoder.EndHeaderBlock());
 
 			// Verify table is unmodified
-			this.decode("BE");
+			Assert.Throws<IOException>(delegate { this.decode("BE"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralNeverIndexedWithEmptyName()
 		{
-			this.decode("100005" + hex("value"));
+			Assert.Throws<IOException>(delegate { this.decode("100005" + hex("value")); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralNeverIndexedWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("107F817F");
-			for(int i = 0; i < 16384; i++) {
+			for(var i = 0; i < 16384; i++) {
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
@@ -323,19 +310,18 @@ namespace hpack
 			Assert.IsTrue(decoder.EndHeaderBlock());
 
 			// Verify table is unmodified
-			this.decode("BE");
+			Assert.Throws<IOException>(delegate { this.decode("BE"); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testLiteralNeverIndexedWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("1004");
 			sb.Append(hex("name"));
 			sb.Append("7F813F");
-			for(int i = 0; i < 8192; i++) {
+			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
 			this.decode(sb.ToString());
@@ -345,7 +331,7 @@ namespace hpack
 			Assert.IsTrue(decoder.EndHeaderBlock());
 
 			// Verify table is unmodified
-			this.decode("BE");
+			Assert.Throws<IOException>(delegate { this.decode("BE"); });
 		}
 	}
 }

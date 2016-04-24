@@ -20,10 +20,7 @@ namespace hpack
 {
 	public class HuffmanDecoder
 	{
-		private static IOException EOS_DECODED = new IOException("EOS Decoded");
-		private static IOException INVALID_PADDING = new IOException("Invalid Padding");
-
-		private Node root;
+		private Node root = null;
 
 		/// <summary>
 		/// Creates a new Huffman decoder with the specified Huffman coding.
@@ -47,34 +44,34 @@ namespace hpack
 		public byte[] Decode(byte[] buf)
 		{
 			using(var baos = new MemoryStream()) {
-				Node node = root;
-				int current = 0;
-				int bits = 0;
-				for(int i = 0; i < buf.Length; i++) {
-					int b = buf[i] & 0xFF;
+				var node = this.root;
+				var current = 0;
+				var bits = 0;
+				for(var i = 0; i < buf.Length; i++) {
+					var b = buf[i] & 0xFF;
 					current = (current << 8) | b;
 					bits += 8;
 					while(bits >= 8) {
-						int c = (current >> (bits - 8)) & 0xFF;
+						var c = (current >> (bits - 8)) & 0xFF;
 						node = node.Children[c];
 						bits -= node.Bits;
 						if (node.IsTerminal()) {
 							if (node.Symbol == HpackUtil.HUFFMAN_EOS) {
-								throw EOS_DECODED;
+								throw new IOException("EOS Decoded");
 							}
 							baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
-							node = root;
+							node = this.root;
 						}
 					}
 				}
 
 				while(bits > 0) {
-					int c = (current << (8 - bits)) & 0xFF;
+					var c = (current << (8 - bits)) & 0xFF;
 					node = node.Children[c];
 					if (node.IsTerminal() && node.Bits <= bits) {
 						bits -= node.Bits;
 						baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
-						node = root;
+						node = this.root;
 					} else {
 						break;
 					}
@@ -83,9 +80,9 @@ namespace hpack
 				// Section 5.2. String Literal Representation
 				// Padding not corresponding to the most significant bits of the code
 				// for the EOS symbol (0xFF) MUST be treated as a decoding error.
-				int mask = (1 << bits) - 1;
+				var mask = (1 << bits) - 1;
 				if ((current & mask) != mask) {
-					throw INVALID_PADDING;
+					throw new IOException("Invalid Padding");
 				}
 
 				return baos.ToArray();
@@ -112,9 +109,9 @@ namespace hpack
 			/// </summary>
 			public Node()
 			{
-				symbol = 0;
-				bits = 8;
-				children = new Node[256];
+				this.symbol = 0;
+				this.bits = 8;
+				this.children = new Node[256];
 			}
 
 			/// <summary>
@@ -127,19 +124,19 @@ namespace hpack
 				//assert(bits > 0 && bits <= 8);
 				this.symbol = symbol;
 				this.bits = bits;
-				children = null;
+				this.children = null;
 			}
 
 			public bool IsTerminal()
 			{
-				return children == null;
+				return (this.children == null) ? true : false;
 			}
 		}
 
 		private static Node BuildTree(int[] codes, byte[] lengths)
 		{
-			Node root = new Node();
-			for(int i = 0; i < codes.Length; i++) {
+			var root = new Node();
+			for(var i = 0; i < codes.Length; i++) {
 				Insert(root, i, codes[i], lengths[i]);
 			}
 			return root;
@@ -148,24 +145,24 @@ namespace hpack
 		private static void Insert(Node root, int symbol, int code, byte length)
 		{
 			// traverse tree using the most significant bytes of code
-			Node current = root;
+			var current = root;
 			while(length > 8) {
 				if (current.IsTerminal()) {
 					throw new InvalidDataException("invalid Huffman code: prefix not unique");
 				}
 				length -= 8;
-				int i = (code >> length) & 0xFF;
+				var i = (code >> length) & 0xFF;
 				if (current.Children[i] == null) {
 					current.Children[i] = new Node();
 				}
 				current = current.Children[i];
 			}
 
-			Node terminal = new Node(symbol, length);
-			int shift = 8 - length;
-			int start = (code << shift) & 0xFF;
-			int end = 1 << shift;
-			for(int i = start; i < start + end; i++) {
+			var terminal = new Node(symbol, length);
+			var shift = 8 - length;
+			var start = (code << shift) & 0xFF;
+			var end = 1 << shift;
+			for(var i = start; i < start + end; i++) {
 				current.Children[i] = terminal;
 			}
 		}

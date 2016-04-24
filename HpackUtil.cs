@@ -30,8 +30,8 @@ namespace hpack
 			if (s1.Length != s2.Length) {
 				return false;
 			}
-			int c = 0;
-			for(int i = 0; i < s1.Length; i++) {
+			var c = 0;
+			for(var i = 0; i < s1.Length; i++) {
 				c |= (s1[i] ^ s2[i]);
 			}
 			return c == 0;
@@ -53,12 +53,9 @@ namespace hpack
 		// Section 6.2. Literal Header Field Representation
 		public enum IndexType
 		{
-			INCREMENTAL,
-			// Section 6.2.1. Literal Header Field with Incremental Indexing
-			NONE,
-			// Section 6.2.2. Literal Header Field without Indexing
-			NEVER
-			// Section 6.2.3. Literal Header Field never Indexed
+			INCREMENTAL, // Section 6.2.1. Literal Header Field with Incremental Indexing
+			NONE, // Section 6.2.2. Literal Header Field without Indexing
+			NEVER // Section 6.2.3. Literal Header Field never Indexed
 		}
 
 		// Appendix B: Huffman Codes

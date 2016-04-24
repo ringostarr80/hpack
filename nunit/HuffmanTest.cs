@@ -26,41 +26,39 @@ namespace hpack
 		[Test]
 		public void testHuffman()
 		{
-			string s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-			for(int i = 0; i < s.Length; i++) {
+			var s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			for(var i = 0; i < s.Length; i++) {
 				roundTrip(s.Substring(0, i));
 			}
 
-			Random random = new Random(123456789);
-			byte[] buf = new byte[4096];
+			var random = new Random(123456789);
+			var buf = new byte[4096];
 			random.NextBytes(buf);
 			roundTrip(buf);
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testDecodeEOS()
 		{
-			byte[] buf = new byte[4];
-			for(int i = 0; i < 4; i++) {
+			var buf = new byte[4];
+			for(var i = 0; i < 4; i++) {
 				buf[i] = (byte)0xFF;
 			}
-			Huffman.DECODER.Decode(buf);
+			Assert.Throws<IOException>(delegate { Huffman.DECODER.Decode(buf); });
 		}
 
 		[Test]
-		[ExpectedException(typeof(IOException))]
 		public void testDecodeIllegalPadding()
 		{
-			byte[] buf = new byte[1];
+			var buf = new byte[1];
 			buf[0] = 0x00; // '0', invalid padding
-			Huffman.DECODER.Decode(buf);
+			Assert.Throws<IOException>(delegate { Huffman.DECODER.Decode(buf); });
 		}
 
 		[Test]
 		public void testDecodeExtraPadding()
 		{
-			byte[] buf = new byte[2];
+			var buf = new byte[2];
 			buf[0] = 0x0F; // '1', 'EOS'
 			buf[1] = (byte)0xFF; // 'EOS'
 			Huffman.DECODER.Decode(buf);
@@ -86,7 +84,7 @@ namespace hpack
 			using(var baos = new MemoryStream()) {
 				using(var dos = new BinaryWriter(baos)) {
 					encoder.Encode(dos, buf);
-					byte[] actualBytes = decoder.Decode(baos.ToArray());
+					var actualBytes = decoder.Decode(baos.ToArray());
 					Assert.IsTrue(buf.SequenceEqual(actualBytes));
 				}
 			}

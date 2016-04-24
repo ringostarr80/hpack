@@ -45,11 +45,11 @@ namespace hpack
 		/// </summary>
 		public int Length()
 		{
-			int length;
-			if (head < tail) {
-				length = headerFields.Length - tail + head;
+			var length = 0;
+			if (this.head < this.tail) {
+				length = this.headerFields.Length - this.tail + this.head;
 			} else {
-				length = head - tail;
+				length = this.head - this.tail;
 			}
 			return length;
 		}
@@ -85,11 +85,11 @@ namespace hpack
 			if (index <= 0 || index > this.Length()) {
 				throw new IndexOutOfRangeException();
 			}
-			int i = head - index;
+			var i = this.head - index;
 			if (i < 0) {
-				return headerFields[i + headerFields.Length];
+				return this.headerFields[i + this.headerFields.Length];
 			} else {
-				return headerFields[i];
+				return this.headerFields[i];
 			}
 		}
 
@@ -103,18 +103,18 @@ namespace hpack
 		/// <param name="header">Header.</param>
 		public void Add(HeaderField header)
 		{
-			int headerSize = header.Size;
-			if (headerSize > capacity) {
+			var headerSize = header.Size;
+			if (headerSize > this.capacity) {
 				this.Clear();
 				return;
 			}
-			while(size + headerSize > capacity) {
+			while(this.size + headerSize > this.capacity) {
 				this.Remove();
 			}
-			headerFields[head++] = header;
-			size += header.Size;
-			if (head == headerFields.Length) {
-				head = 0;
+			this.headerFields[this.head++] = header;
+			this.size += header.Size;
+			if (this.head == this.headerFields.Length) {
+				this.head = 0;
 			}
 		}
 
@@ -123,14 +123,14 @@ namespace hpack
 		/// </summary>
 		public HeaderField Remove()
 		{
-			HeaderField removed = headerFields[tail];
+			var removed = this.headerFields[this.tail];
 			if (removed == null) {
 				return null;
 			}
-			size -= removed.Size;
-			headerFields[tail++] = null;
-			if (tail == headerFields.Length) {
-				tail = 0;
+			this.size -= removed.Size;
+			this.headerFields[this.tail++] = null;
+			if (this.tail == this.headerFields.Length) {
+				this.tail = 0;
 			}
 			return removed;
 		}
@@ -140,15 +140,15 @@ namespace hpack
 		/// </summary>
 		public void Clear()
 		{
-			while(tail != head) {
-				headerFields[tail++] = null;
-				if (tail == headerFields.Length) {
-					tail = 0;
+			while(this.tail != this.head) {
+				this.headerFields[this.tail++] = null;
+				if (this.tail == this.headerFields.Length) {
+					this.tail = 0;
 				}
 			}
-			head = 0;
-			tail = 0;
-			size = 0;
+			this.head = 0;
+			this.tail = 0;
+			this.size = 0;
 		}
 
 		/// <summary>
@@ -173,36 +173,36 @@ namespace hpack
 				this.Clear();
 			} else {
 				// initially size will be 0 so remove won't be called
-				while(size > capacity) {
+				while(this.size > capacity) {
 					this.Remove();
 				}
 			}
 
-			int maxEntries = capacity / HeaderField.HEADER_ENTRY_OVERHEAD;
+			var maxEntries = capacity / HeaderField.HEADER_ENTRY_OVERHEAD;
 			if (capacity % HeaderField.HEADER_ENTRY_OVERHEAD != 0) {
 				maxEntries++;
 			}
 
 			// check if capacity change requires us to reallocate the array
-			if (headerFields != null && headerFields.Length == maxEntries) {
+			if (this.headerFields != null && this.headerFields.Length == maxEntries) {
 				return;
 			}
 
-			HeaderField[] tmp = new HeaderField[maxEntries];
+			var tmp = new HeaderField[maxEntries];
 
 			// initially length will be 0 so there will be no copy
-			int len = this.Length();
-			int cursor = tail;
-			for(int i = 0; i < len; i++) {
-				HeaderField entry = headerFields[cursor++];
+			var len = this.Length();
+			var cursor = this.tail;
+			for(var i = 0; i < len; i++) {
+				var entry = this.headerFields[cursor++];
 				tmp[i] = entry;
-				if (cursor == headerFields.Length) {
+				if (cursor == this.headerFields.Length) {
 					cursor = 0;
 				}
 			}
 
 			this.tail = 0;
-			this.head = tail + len;
+			this.head = this.tail + len;
 			this.headerFields = tmp;
 		}
 	}

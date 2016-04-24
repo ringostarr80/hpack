@@ -54,23 +54,23 @@ namespace hpack
 
 		public int CompareTo(HeaderField anotherHeaderField)
 		{
-			int ret = this.CompareTo(name, anotherHeaderField.name);
+			var ret = this.CompareTo(this.name, anotherHeaderField.name);
 			if (ret == 0) {
-				ret = this.CompareTo(value, anotherHeaderField.value);
+				ret = this.CompareTo(this.value, anotherHeaderField.value);
 			}
 			return ret;
 		}
 
 		private int CompareTo(byte[] s1, byte[] s2)
 		{
-			int len1 = s1.Length;
-			int len2 = s2.Length;
-			int lim = Math.Min(len1, len2);
+			var len1 = s1.Length;
+			var len2 = s2.Length;
+			var lim = Math.Min(len1, len2);
 
-			int k = 0;
+			var k = 0;
 			while(k < lim) {
-				byte b1 = s1[k];
-				byte b2 = s2[k];
+				var b1 = s1[k];
+				var b2 = s2[k];
 				if (b1 != b2) {
 					return b1 - b2;
 				}
@@ -87,9 +87,9 @@ namespace hpack
 			if (!(obj is HeaderField)) {
 				return false;
 			}
-			HeaderField other = (HeaderField)obj;
-			bool nameEquals = HpackUtil.Equals(name, other.name);
-			bool valueEquals = HpackUtil.Equals(value, other.value);
+			var other = (HeaderField)obj;
+			var nameEquals = HpackUtil.Equals(this.name, other.name);
+			var valueEquals = HpackUtil.Equals(this.value, other.value);
 			return nameEquals && valueEquals;
 		}
 

@@ -66,13 +66,13 @@ namespace hpack
 							return;
 						}
 
-			long current = 0;
-			int n = 0;
+			var current = 0L;
+			var n = 0;
 
-			for(int i = 0; i < len; i++) {
-				int b = data[off + i] & 0xFF;
-				uint code = (uint)this.codes[b];
-				int nbits = lengths[b];
+			for(var i = 0; i < len; i++) {
+				var b = data[off + i] & 0xFF;
+				var code = (uint)this.codes[b];
+				var nbits = (int)lengths[b];
 
 				current <<= nbits;
 				current |= code;
@@ -101,8 +101,8 @@ namespace hpack
 			if (data == null) {
 				throw new NullReferenceException("data");
 			}
-			long len = 0;
-			foreach(byte b in data) {
+			var len = 0L;
+			foreach(var b in data) {
 				len += lengths[b & 0xFF];
 			}
 			return (int)((len + 7) >> 3);
