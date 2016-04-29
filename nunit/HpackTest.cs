@@ -1,5 +1,6 @@
 ﻿/*
- * Copyright 2015 Ringo Leese
+ * Copyright 2014 Twitter, Inc
+ * This file is a derivative work modified by Ringo Leese
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
