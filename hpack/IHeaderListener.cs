@@ -16,21 +16,18 @@
  */
 namespace hpack
 {
-	public class Huffman
+	/// <summary>
+	/// The IHeaderListener interface.
+	/// </summary>
+	public interface IHeaderListener
 	{
 		/// <summary>
-		/// Huffman Decoder
+		/// EmitHeader is called by the decoder during header field emission.
+		/// The name and value byte arrays must not be modified.
 		/// </summary>
-		public static HuffmanDecoder DECODER = new HuffmanDecoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
-
-		/// <summary>
-		/// Huffman Encoder
-		/// </summary>
-		public static HuffmanEncoder ENCODER = new HuffmanEncoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
-
-		private Huffman()
-		{
-			// utility class
-		}
+		/// <param name="name">Name.</param>
+		/// <param name="value">Value.</param>
+		/// <param name="sensitive">If set to <c>true</c> sensitive.</param>
+		void AddHeader(byte[] name, byte[] value, bool sensitive);
 	}
 }

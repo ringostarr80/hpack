@@ -19,6 +19,9 @@ using System.Text;
 
 namespace hpack
 {
+	/// <summary>
+	/// The HpackUtil class.
+	/// </summary>
 	public class HpackUtil
 	{
 		/// <summary>
@@ -51,16 +54,23 @@ namespace hpack
 			return obj;
 		}
 
-		// Section 6.2. Literal Header Field Representation
+		/// <summary>
+		/// Section 6.2. Literal Header Field Representation
+		/// </summary>
 		public enum IndexType
 		{
-			INCREMENTAL, // Section 6.2.1. Literal Header Field with Incremental Indexing
-			NONE, // Section 6.2.2. Literal Header Field without Indexing
-			NEVER // Section 6.2.3. Literal Header Field never Indexed
+			/// <summary>Section 6.2.1. Literal Header Field with Incremental Indexing</summary>
+			INCREMENTAL,
+			/// <summary>Section 6.2.2. Literal Header Field without Indexing</summary>
+			NONE,
+			/// <summary>Section 6.2.3. Literal Header Field never Indexed</summary>
+			NEVER
 		}
 
-		// Appendix B: Huffman Codes
-		// http://tools.ietf.org/html/rfc7541#appendix-B
+		/// <summary>
+		/// Appendix B: Huffman Codes
+		/// </summary>
+		/// <note type="rfc">http://tools.ietf.org/html/rfc7541#appendix-B</note>
 		public static int[] HUFFMAN_CODES = {
 			0x1ff8,
 			0x7fffd8,
@@ -321,6 +331,9 @@ namespace hpack
 			0x3fffffff // EOS
 		};
 
+		/// <summary>
+		/// The Huffman code lengths.
+		/// </summary>
 		public static byte[] HUFFMAN_CODE_LENGTHS = {
 			13, 23, 28, 28, 28, 28, 28, 28, 28, 24, 30, 28, 28, 30, 28, 28,
 			28, 28, 28, 28, 28, 28, 30, 28, 28, 28, 28, 28, 28, 28, 28, 28,
@@ -341,6 +354,9 @@ namespace hpack
 			30 // EOS
 		};
 
+		/// <summary>
+		/// The Huffman Eos
+		/// </summary>
 		public static int HUFFMAN_EOS = 256;
 
 		private HpackUtil()

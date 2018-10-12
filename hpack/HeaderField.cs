@@ -19,40 +19,76 @@ using System.Text;
 
 namespace hpack
 {
+	/// <summary>
+	/// The HeaderField class.
+	/// </summary>
 	public class HeaderField : IComparable<HeaderField>
 	{
 		private byte[] name;
 		private byte[] value;
 
-		// Section 4.1. Calculating Table Size
-		// The additional 32 octets account for an estimated
-		// overhead associated with the structure.
+		/// <summary>
+		/// Section 4.1. Calculating Table Size
+		/// The additional 32 octets account for an estimated
+		/// overhead associated with the structure.
+		/// </summary>
 		public static int HEADER_ENTRY_OVERHEAD = 32;
 
+		/// <summary>
+		/// The Name.
+		/// </summary>
 		public byte[] Name { get { return this.name; } }
 
+		/// <summary>
+		/// The Value.
+		/// </summary>
+		/// <value></value>
 		public byte[] Value { get { return this.value; } }
 
+		/// <summary>
+		/// The Size.
+		/// </summary>
+		/// <value></value>
 		public int Size { get { return this.name.Length + this.value.Length + HEADER_ENTRY_OVERHEAD; } }
 
-		// This constructor can only be used if name and value are ISO-8859-1 encoded.
+		/// <summary>
+		/// This constructor can only be used if name and value are ISO-8859-1 encoded.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		public HeaderField(string name, string value)
 		{
 			this.name = Encoding.UTF8.GetBytes(name);
 			this.value = Encoding.UTF8.GetBytes(value);
 		}
 
+		/// <summary>
+		/// default constructor.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
 		public HeaderField(byte[] name, byte[] value)
 		{
 			this.name = (byte[])HpackUtil.RequireNonNull(name);
 			this.value = (byte[])HpackUtil.RequireNonNull(value);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		/// <returns>int</returns>
 		public static int SizeOf(byte[] name, byte[] value)
 		{
 			return name.Length + value.Length + HEADER_ENTRY_OVERHEAD;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="anotherHeaderField"></param>
+		/// <returns>int</returns>
 		public int CompareTo(HeaderField anotherHeaderField)
 		{
 			var ret = this.CompareTo(this.name, anotherHeaderField.name);
@@ -80,6 +116,11 @@ namespace hpack
 			return len1 - len2;
 		}
 
+		/// <summary>
+		/// Check, if the header fields are equal.
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns>bool</returns>
 		public override bool Equals(Object obj)
 		{
 			if (obj == this) {
@@ -94,11 +135,19 @@ namespace hpack
 			return nameEquals && valueEquals;
 		}
 
+		/// <summary>
+		/// Gets the hashcode of this instance
+		/// </summary>
+		/// <returns>int</returns>
 		public override int GetHashCode()
 		{
 			return base.GetHashCode();
 		}
 
+		/// <summary>
+		/// Gets a formatted output of this header-field.
+		/// </summary>
+		/// <returns>string</returns>
 		public override String ToString()
 		{
 			return String.Format("{0}: {1}", Encoding.UTF8.GetString(this.name), Encoding.UTF8.GetString(this.value));

@@ -19,6 +19,9 @@ using System.IO;
 
 namespace hpack
 {
+	/// <summary>
+	/// The HuffmanEncoder class.
+	/// </summary>
 	public class HuffmanEncoder
 	{
 		private int[] codes;
@@ -41,7 +44,6 @@ namespace hpack
 		/// <param name="output">the output stream for the compressed data</param>
 		/// <param name="data">the string literal to be Huffman encoded</param>
 		/// <exception cref="IOException">if an I/O error occurs.</exception>
-		/// <see cref="com.twitter.hpack.HuffmanEncoder#encode(OutputStream, byte[], int, int)"/>
 		public void Encode(BinaryWriter output, byte[] data)
 		{
 			this.Encode(output, data, 0, data.Length);

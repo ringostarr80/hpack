@@ -20,13 +20,16 @@ using System.Text;
 
 namespace hpack
 {
+	/// <summary>
+	/// The StaticTable class.
+	/// </summary>
 	public static class StaticTable
 	{
 		/// <summary>
 		/// The static table
 		/// Appendix A: Static Table
 		/// </summary>
-		/// <see cref="http://tools.ietf.org/html/rfc7541#appendix-A"/>
+		/// <note type="rfc">http://tools.ietf.org/html/rfc7541#appendix-A</note>
 		private static List<HeaderField> STATIC_TABLE = new List<HeaderField>() {
 			/*  1 */new HeaderField(":authority", String.Empty),
 			/*  2 */new HeaderField(":method", "GET"),

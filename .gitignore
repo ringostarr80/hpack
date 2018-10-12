@@ -2,5 +2,6 @@ bin/
 obj/
 packages/
 .vs/
+.vscode/
 hpack.*.nupkg
 hpack.userprefs

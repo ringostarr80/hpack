@@ -16,10 +16,14 @@
  */
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace hpack
 {
+	/// <summary>
+	/// The Encoder class.
+	/// </summary>
 	public class Encoder
 	{
 		private static int BUCKET_SIZE = 17;
@@ -70,16 +74,35 @@ namespace hpack
 			this.head.Before = this.head.After = this.head;
 		}
 
+		/// <summary>
+		/// The EncodeHeader method.
+		/// </summary>
+		/// <param name="output">BinaryWrite</param>
+		/// <param name="name">string</param>
+		/// <param name="value">string</param>
         public void EncodeHeader(BinaryWriter output, string name, string value)
         {
             this.EncodeHeader(output, name, value, false);
         }
 
+		/// <summary>
+		/// The EncodeHeader method.
+		/// </summary>
+		/// <param name="output">BinaryWrite</param>
+		/// <param name="name">string</param>
+		/// <param name="value">string</param>
+		/// <param name="sensitive">bool</param>
         public void EncodeHeader(BinaryWriter output, string name, string value, bool sensitive)
         {
             this.EncodeHeader(output, Encoding.UTF8.GetBytes(name), Encoding.UTF8.GetBytes(value), sensitive);
         }
 
+		/// <summary>
+		/// The EncodeHeader method.
+		/// </summary>
+		/// <param name="output">BinaryWriter</param>
+		/// <param name="name">byte[]</param>
+		/// <param name="value">byte[]</param>
         public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value)
         {
             this.EncodeHeader(output, name, value, false);
@@ -403,13 +426,13 @@ namespace hpack
 			}
 
 			// Copy name and value that modifications of original do not affect the dynamic table.
-			name.CopyTo(name, 0);
-			value.CopyTo(value, 0);
+			var copyOfName = name.ToArray();
+			var copyOfValue = value.ToArray();
 
-			var h = Encoder.Hash(name);
+			var h = Encoder.Hash(copyOfName);
 			var i = Encoder.Index(h);
 			var old = this.headerFields[i];
-			var e = new HeaderEntry(h, name, value, this.head.Before.Index - 1, old);
+			var e = new HeaderEntry(h, copyOfName, copyOfValue, this.head.Before.Index - 1, old);
 			this.headerFields[i] = e;
 			e.AddBefore(this.head);
 			this.size += headerSize;

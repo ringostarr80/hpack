@@ -19,6 +19,9 @@ using System.IO;
 
 namespace hpack
 {
+	/// <summary>
+	/// The Decoder class.
+	/// </summary>
 	public class Decoder
 	{
 		private static byte[] EMPTY = { };
@@ -40,19 +43,58 @@ namespace hpack
 		private int valueLength;
 		private byte[] name;
 
+		/// <summary>
+		/// The State enum.
+		/// </summary>
 		public enum State
 		{
+			/// <summary>
+			/// Read header represenation state.
+			/// </summary>
 			READ_HEADER_REPRESENTATION,
+			/// <summary>
+			/// Read max dynamic table size state.
+			/// </summary>
 			READ_MAX_DYNAMIC_TABLE_SIZE,
+			/// <summary>
+			/// Read indexed header state.
+			/// </summary>
 			READ_INDEXED_HEADER,
+			/// <summary>
+			/// Read indexed header name state.
+			/// </summary>
 			READ_INDEXED_HEADER_NAME,
+			/// <summary>
+			/// Read literal header name length prefix state.
+			/// </summary>
 			READ_LITERAL_HEADER_NAME_LENGTH_PREFIX,
+			/// <summary>
+			/// Read literal header name length state.
+			/// </summary>
 			READ_LITERAL_HEADER_NAME_LENGTH,
+			/// <summary>
+			/// Read literal header name state.
+			/// </summary>
 			READ_LITERAL_HEADER_NAME,
+			/// <summary>
+			/// Skip literal header name state.
+			/// </summary>
 			SKIP_LITERAL_HEADER_NAME,
+			/// <summary>
+			/// Read literal header value length prefix state.
+			/// </summary>
 			READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX,
+			/// <summary>
+			/// Read literal header value length state.
+			/// </summary>
 			READ_LITERAL_HEADER_VALUE_LENGTH,
+			/// <summary>
+			/// Read literal header value state.
+			/// </summary>
 			READ_LITERAL_HEADER_VALUE,
+			/// <summary>
+			/// Skip literal header value state.
+			/// </summary>
 			SKIP_LITERAL_HEADER_VALUE
 		}
 

@@ -19,6 +19,9 @@ using System.IO;
 
 namespace hpack
 {
+	/// <summary>
+	/// The HuffmanDecoder class
+	/// </summary>
 	public class HuffmanDecoder
 	{
 		private Node root = null;
@@ -90,6 +93,9 @@ namespace hpack
 			}
 		}
 
+		/// <summary>
+		/// The Node class
+		/// </summary>
 		public class Node
 		{
 			private int symbol;
@@ -99,14 +105,23 @@ namespace hpack
 			private Node[] children;
 			// internal nodes have children
 
+			/// <summary>
+			/// The Symbol.
+			/// </summary>
 			public int Symbol { get { return this.symbol; } }
 
+			/// <summary>
+			/// The Bits.
+			/// </summary>
 			public int Bits { get { return this.bits; } }
 
+			/// <summary>
+			/// The Children.
+			/// </summary>
 			public Node[] Children { get { return this.children; } }
 
 			/// <summary>
-			/// Initializes a new instance of the <see cref="hpack.HuffmanDecoder+Node"/> class.
+			/// Initializes a new instance of the HuffmanDecoder.Node class.
 			/// </summary>
 			public Node()
 			{
@@ -116,7 +131,7 @@ namespace hpack
 			}
 
 			/// <summary>
-			/// Initializes a new instance of the <see cref="hpack.HuffmanDecoder+Node"/> class.
+			/// Initializes a new instance of the HuffmanDecoder.Node class.
 			/// </summary>
 			/// <param name="symbol">the symbol the node represents</param>
 			/// <param name="bits">the number of bits matched by this node</param>
@@ -128,6 +143,10 @@ namespace hpack
 				this.children = null;
 			}
 
+			/// <summary>
+			/// ???
+			/// </summary>
+			/// <returns>bool</returns>
 			public bool IsTerminal()
 			{
 				return (this.children == null) ? true : false;

@@ -18,6 +18,9 @@ using System;
 
 namespace hpack
 {
+	/// <summary>
+	/// The DynamicTable class.
+	/// </summary>
 	public class DynamicTable
 	{
 		// a circular queue of header fields
@@ -28,8 +31,16 @@ namespace hpack
 		private int capacity = -1;
 		// ensure setCapacity creates the array
 
+		/// <summary>
+		/// The Capacity
+		/// </summary>
+		/// <value></value>
 		public int Capacity { get { return this.capacity; } }
 
+		/// <summary>
+		/// The Size
+		/// </summary>
+		/// <value></value>
 		public int Size { get { return this.size; } }
 
 		/// <summary>
