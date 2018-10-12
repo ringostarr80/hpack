@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/ringostarr80/hpack</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Header Compression for HTTP/2 written in C#</description>
-    <releaseNotes>changed architecture target to .NETStandard 2.0</releaseNotes>
+    <releaseNotes>changed framework target to .NETStandard 2.0</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>hpack HTTP2</tags>
   </metadata>
