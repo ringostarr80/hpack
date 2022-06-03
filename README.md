@@ -1,4 +1,10 @@
 # hpack
+
+[![License: CC0](https://img.shields.io/github/license/ringostarr80/hpack.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+![NuGet](https://img.shields.io/nuget/v/hpack)
+![Version](https://img.shields.io/github/v/tag/ringostarr80/hpack?sort=semver)
+![Workflow: CodeQL](https://img.shields.io/github/workflow/status/ringostarr80/hpack/CodeQL)
+
 Header Compression for HTTP/2 written in C#
 
 ### An Example on how to use the hpack.Encoder and hpack.Decoder
