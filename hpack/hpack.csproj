@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <NuspecFile>hpack.nuspec</NuspecFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DocumentationFile>bin\Release\netstandard2.0\hpack.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\net5.0\hpack.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>

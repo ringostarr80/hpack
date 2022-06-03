@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2022-06-03
+### Changed
+- target framework to .NET 5.0
+
 ## [1.1.0] - 2018-10-12
 ### Changed
 - set framework target to .NETStandard 2.0
