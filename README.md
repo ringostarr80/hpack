@@ -3,7 +3,7 @@
 [![License: CC0](https://img.shields.io/github/license/ringostarr80/hpack.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 ![NuGet](https://img.shields.io/nuget/v/hpack)
 ![Version](https://img.shields.io/github/v/tag/ringostarr80/hpack?sort=semver)
-![Workflow: CodeQL](https://img.shields.io/github/workflow/status/ringostarr80/hpack/CodeQL)
+![Workflow: CodeQL](https://img.shields.io/github/actions/workflow/status/ringostarr80/hpack/.github/workflows/codeql-analysis.yml?branch=main)
 
 Header Compression for HTTP/2 written in C#
 
