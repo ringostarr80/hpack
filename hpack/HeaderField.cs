@@ -141,7 +141,7 @@ namespace hpack
 		/// <returns>int</returns>
 		public override int GetHashCode()
 		{
-			return base.GetHashCode();
+			return this.name.GetHashCode() ^ this.value.GetHashCode();
 		}
 
 		/// <summary>

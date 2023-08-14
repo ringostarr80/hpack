@@ -21,7 +21,7 @@ namespace hpack
 	/// <summary>
 	/// The HpackUtil class.
 	/// </summary>
-	public class HpackUtil
+	public static class HpackUtil
 	{
 		/// <summary>
 		/// A string compare that doesn't leak timing information.
@@ -357,10 +357,5 @@ namespace hpack
 		/// The Huffman Eos
 		/// </summary>
 		public static int HUFFMAN_EOS = 256;
-
-		private HpackUtil()
-		{
-			// utility class
-		}
 	}
 }
