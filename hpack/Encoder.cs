@@ -35,8 +35,8 @@ namespace hpack
 		private bool forceHuffmanOff;
 
 		// a linked hash map of header fields
-		private HeaderEntry[] headerFields = new HeaderEntry[BUCKET_SIZE];
-		private HeaderEntry head = new HeaderEntry(-1, EMPTY, EMPTY, int.MaxValue, null);
+		private readonly HeaderEntry[] headerFields = new HeaderEntry[BUCKET_SIZE];
+		private readonly HeaderEntry head = new HeaderEntry(-1, EMPTY, EMPTY, int.MaxValue, null);
 		private int size;
 		private int capacity;
 
@@ -515,21 +515,16 @@ namespace hpack
 		/// </summary>
 		private class HeaderEntry : HeaderField
 		{
-			// These fields comprise the doubly linked list used for iteration.
-			private HeaderEntry before = null, after = null;
-
-			// These fields comprise the chained list for header fields with the same hash.
-			private HeaderEntry next = null;
-			private int hash = 0;
+			private readonly int hash = 0;
 
 			// This is used to compute the index in the dynamic table.
-			private int index = 0;
+			private readonly int index = 0;
 
-			public HeaderEntry Before { get { return this.before; } set { this.before = value; } }
+			public HeaderEntry Before { get; set; } = null;
 
-			public HeaderEntry After { get { return this.after; } set { this.after = value; } }
+			public HeaderEntry After { get; set; } = null;
 
-			public HeaderEntry Next { get { return this.next; } set { this.next = value; } }
+			public HeaderEntry Next { get; set; } = null;
 
 			public int Hash { get { return this.hash; } }
 
@@ -547,7 +542,7 @@ namespace hpack
 			{
 				this.index = index;
 				this.hash = hash;
-				this.next = next;
+				this.Next = next;
 			}
 
 			/// <summary>
@@ -555,8 +550,8 @@ namespace hpack
 			/// </summary>
 			public void Remove()
 			{
-				this.before.after = this.after;
-				this.after.before = this.before;
+				this.Before.After = this.After;
+				this.After.Before = this.Before;
 			}
 
 			/// <summary>
@@ -565,10 +560,10 @@ namespace hpack
 			/// <param name="existingEntry">Existing entry.</param>
 			public void AddBefore(HeaderEntry existingEntry)
 			{
-				this.after = existingEntry;
-				this.before = existingEntry.before;
-				this.before.after = this;
-				this.after.before = this;
+				this.After = existingEntry;
+				this.Before = existingEntry.Before;
+				this.Before.After = this;
+				this.After.Before = this;
 			}
 		}
 	}

@@ -26,9 +26,9 @@ namespace hpack
 	{
 		private static byte[] EMPTY = { };
 
-		private DynamicTable dynamicTable;
+		private readonly DynamicTable dynamicTable;
 
-		private int maxHeaderSize;
+		private readonly int maxHeaderSize;
 		private int maxDynamicTableSize;
 		private int encoderMaxDynamicTableSize;
 		private bool maxDynamicTableSizeChangeRequired;
@@ -465,7 +465,7 @@ namespace hpack
 		/// Return the number of header fields in the dynamic table.
 		/// Exposed for testing.
 		/// </summary>
-		int Length()
+		public int Length()
 		{
 			return this.dynamicTable.Length();
 		}
@@ -474,7 +474,7 @@ namespace hpack
 		/// Return the size of the dynamic table.
 		/// Exposed for testing.
 		/// </summary>
-		int Size()
+		public int Size()
 		{
 			return this.dynamicTable.Size;
 		}
@@ -485,7 +485,7 @@ namespace hpack
 		/// </summary>
 		/// <returns>The header field.</returns>
 		/// <param name="index">Index.</param>
-		HeaderField GetHeaderField(int index)
+		public HeaderField GetHeaderField(int index)
 		{
 			return this.dynamicTable.GetEntry(index + 1);
 		}
