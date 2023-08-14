@@ -59,20 +59,28 @@ namespace hpack
 		/// <exception cref="IOException">if an I/O error occurs. In particular, an <code>IOException</code> may be thrown if the output stream has been closed.</exception>
 		public void Encode(BinaryWriter output, byte[] data, int off, int len)
 		{
-			if (output == null) {
-				throw new NullReferenceException("out");
-			} else if (data == null) {
-					throw new NullReferenceException("data");
-				} else if (off < 0 || len < 0 || (off + len) < 0 || off > data.Length || (off + len) > data.Length) {
-						throw new IndexOutOfRangeException();
-					} else if (len == 0) {
-							return;
-						}
+			if (output == null)
+			{
+				throw new HPackNullReferenceException("out");
+			}
+			else if (data == null)
+			{
+				throw new HPackNullReferenceException("data");
+			}
+			else if (off < 0 || len < 0 || (off + len) < 0 || off > data.Length || (off + len) > data.Length)
+			{
+				throw new HPackIndexOutOfRangeException();
+			}
+			else if (len == 0)
+			{
+				return;
+			}
 
 			var current = 0L;
 			var n = 0;
 
-			for(var i = 0; i < len; i++) {
+			for (var i = 0; i < len; i++)
+			{
 				var b = data[off + i] & 0xFF;
 				var code = (uint)this.codes[b];
 				var nbits = (int)lengths[b];
@@ -81,13 +89,15 @@ namespace hpack
 				current |= code;
 				n += nbits;
 
-				while(n >= 8) {
+				while (n >= 8)
+				{
 					n -= 8;
 					output.Write(((byte)(current >> n)));
 				}
 			}
 
-			if (n > 0) {
+			if (n > 0)
+			{
 				current <<= (8 - n);
 				current |= (uint)(0xFF >> n); // this should be EOS symbol
 				output.Write((byte)current);
@@ -101,11 +111,13 @@ namespace hpack
 		/// <param name="data">the string literal to be Huffman encoded</param>
 		public int GetEncodedLength(byte[] data)
 		{
-			if (data == null) {
-				throw new NullReferenceException("data");
+			if (data == null)
+			{
+				throw new HPackNullReferenceException("data");
 			}
 			var len = 0L;
-			foreach(var b in data) {
+			foreach (var b in data)
+			{
 				len += lengths[b & 0xFF];
 			}
 			return (int)((len + 7) >> 3);

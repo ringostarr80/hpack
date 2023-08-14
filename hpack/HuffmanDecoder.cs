@@ -33,7 +33,8 @@ namespace hpack
 		/// <param name="lengths">the length of each Huffman code</param>
 		public HuffmanDecoder(int[] codes, byte[] lengths)
 		{
-			if (codes.Length != 257 || codes.Length != lengths.Length) {
+			if (codes.Length != 257 || codes.Length != lengths.Length)
+			{
 				throw new ArgumentException("invalid Huffman coding");
 			}
 			this.root = BuildTree(codes, lengths);
@@ -47,20 +48,25 @@ namespace hpack
 		/// <exception cref="IOException">throws IOException if an I/O error occurs. In particular, an <code>IOException</code> may be thrown if the output stream has been closed.</exception>
 		public byte[] Decode(byte[] buf)
 		{
-			using(var baos = new MemoryStream()) {
+			using (var baos = new MemoryStream())
+			{
 				var node = this.root;
 				var current = 0;
 				var bits = 0;
-				for(var i = 0; i < buf.Length; i++) {
+				for (var i = 0; i < buf.Length; i++)
+				{
 					var b = buf[i] & 0xFF;
 					current = (current << 8) | b;
 					bits += 8;
-					while(bits >= 8) {
+					while (bits >= 8)
+					{
 						var c = (current >> (bits - 8)) & 0xFF;
 						node = node.Children[c];
 						bits -= node.Bits;
-						if (node.IsTerminal()) {
-							if (node.Symbol == HpackUtil.HUFFMAN_EOS) {
+						if (node.IsTerminal())
+						{
+							if (node.Symbol == HpackUtil.HUFFMAN_EOS)
+							{
 								throw new IOException("EOS Decoded");
 							}
 							baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
@@ -69,14 +75,18 @@ namespace hpack
 					}
 				}
 
-				while(bits > 0) {
+				while (bits > 0)
+				{
 					var c = (current << (8 - bits)) & 0xFF;
 					node = node.Children[c];
-					if (node.IsTerminal() && node.Bits <= bits) {
+					if (node.IsTerminal() && node.Bits <= bits)
+					{
 						bits -= node.Bits;
 						baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
 						node = this.root;
-					} else {
+					}
+					else
+					{
 						break;
 					}
 				}
@@ -85,7 +95,8 @@ namespace hpack
 				// Padding not corresponding to the most significant bits of the code
 				// for the EOS symbol (0xFF) MUST be treated as a decoding error.
 				var mask = (1 << bits) - 1;
-				if ((current & mask) != mask) {
+				if ((current & mask) != mask)
+				{
 					throw new IOException("Invalid Padding");
 				}
 
@@ -155,7 +166,8 @@ namespace hpack
 		private static Node BuildTree(int[] codes, byte[] lengths)
 		{
 			var root = new Node();
-			for(var i = 0; i < codes.Length; i++) {
+			for (var i = 0; i < codes.Length; i++)
+			{
 				Insert(root, i, codes[i], lengths[i]);
 			}
 			return root;
@@ -165,13 +177,16 @@ namespace hpack
 		{
 			// traverse tree using the most significant bytes of code
 			var current = root;
-			while(length > 8) {
-				if (current.IsTerminal()) {
+			while (length > 8)
+			{
+				if (current.IsTerminal())
+				{
 					throw new InvalidDataException("invalid Huffman code: prefix not unique");
 				}
 				length -= 8;
 				var i = (code >> length) & 0xFF;
-				if (current.Children[i] == null) {
+				if (current.Children[i] == null)
+				{
 					current.Children[i] = new Node();
 				}
 				current = current.Children[i];
@@ -181,7 +196,8 @@ namespace hpack
 			var shift = 8 - length;
 			var start = (code << shift) & 0xFF;
 			var end = 1 << shift;
-			for(var i = start; i < start + end; i++) {
+			for (var i = start; i < start + end; i++)
+			{
 				current.Children[i] = terminal;
 			}
 		}

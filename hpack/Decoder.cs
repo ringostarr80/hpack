@@ -127,70 +127,100 @@ namespace hpack
 		/// <param name="headerListener">Header listener.</param>
 		public void Decode(BinaryReader input, IHeaderListener headerListener)
 		{
-			while(input.BaseStream.Length - input.BaseStream.Position > 0) {
-				switch(this.state) {
+			while (input.BaseStream.Length - input.BaseStream.Position > 0)
+			{
+				switch (this.state)
+				{
 					case State.READ_HEADER_REPRESENTATION:
 						var b = input.ReadSByte();
-						if (maxDynamicTableSizeChangeRequired && (b & 0xE0) != 0x20) {
+						if (maxDynamicTableSizeChangeRequired && (b & 0xE0) != 0x20)
+						{
 							// Encoder MUST signal maximum dynamic table size change
 							throw new IOException("max dynamic table size change required");
 						}
-						if (b < 0) {
+						if (b < 0)
+						{
 							// Indexed Header Field
 							this.index = b & 0x7F;
-							if (this.index == 0) {
+							if (this.index == 0)
+							{
 								throw new IOException("illegal index value (" + this.index + ")");
-							} else if (this.index == 0x7F) {
-									this.state = State.READ_INDEXED_HEADER;
-								} else {
-									this.IndexHeader(this.index, headerListener);
-								}
-						} else if ((b & 0x40) == 0x40) {
-								// Literal Header Field with Incremental Indexing
-								this.indexType = HpackUtil.IndexType.INCREMENTAL;
-								this.index = b & 0x3F;
-								if (this.index == 0) {
-									this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
-								} else if (this.index == 0x3F) {
-										this.state = State.READ_INDEXED_HEADER_NAME;
-									} else {
-										// Index was stored as the prefix
-										this.ReadName(this.index);
-										this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
-									}
-							} else if ((b & 0x20) == 0x20) {
-									// Dynamic Table Size Update
-									this.index = b & 0x1F;
-									if (this.index == 0x1F) {
-										this.state = State.READ_MAX_DYNAMIC_TABLE_SIZE;
-									} else {
-										this.SetDynamicTableSize(index);
-										this.state = State.READ_HEADER_REPRESENTATION;
-									}
-								} else {
-									// Literal Header Field without Indexing / never Indexed
-									this.indexType = ((b & 0x10) == 0x10) ? HpackUtil.IndexType.NEVER : HpackUtil.IndexType.NONE;
-									this.index = b & 0x0F;
-									if (this.index == 0) {
-										this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
-									} else if (this.index == 0x0F) {
-											this.state = State.READ_INDEXED_HEADER_NAME;
-										} else {
-											// Index was stored as the prefix
-											this.ReadName(this.index);
-											this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
-										}
-								}
+							}
+							else if (this.index == 0x7F)
+							{
+								this.state = State.READ_INDEXED_HEADER;
+							}
+							else
+							{
+								this.IndexHeader(this.index, headerListener);
+							}
+						}
+						else if ((b & 0x40) == 0x40)
+						{
+							// Literal Header Field with Incremental Indexing
+							this.indexType = HpackUtil.IndexType.INCREMENTAL;
+							this.index = b & 0x3F;
+							if (this.index == 0)
+							{
+								this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
+							}
+							else if (this.index == 0x3F)
+							{
+								this.state = State.READ_INDEXED_HEADER_NAME;
+							}
+							else
+							{
+								// Index was stored as the prefix
+								this.ReadName(this.index);
+								this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
+							}
+						}
+						else if ((b & 0x20) == 0x20)
+						{
+							// Dynamic Table Size Update
+							this.index = b & 0x1F;
+							if (this.index == 0x1F)
+							{
+								this.state = State.READ_MAX_DYNAMIC_TABLE_SIZE;
+							}
+							else
+							{
+								this.SetDynamicTableSize(index);
+								this.state = State.READ_HEADER_REPRESENTATION;
+							}
+						}
+						else
+						{
+							// Literal Header Field without Indexing / never Indexed
+							this.indexType = ((b & 0x10) == 0x10) ? HpackUtil.IndexType.NEVER : HpackUtil.IndexType.NONE;
+							this.index = b & 0x0F;
+							if (this.index == 0)
+							{
+								this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
+							}
+							else if (this.index == 0x0F)
+							{
+								this.state = State.READ_INDEXED_HEADER_NAME;
+							}
+							else
+							{
+								// Index was stored as the prefix
+								this.ReadName(this.index);
+								this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
+							}
+						}
 						break;
 
 					case State.READ_MAX_DYNAMIC_TABLE_SIZE:
 						var maxSize = Decoder.DecodeULE128(input);
-						if (maxSize == -1) {
+						if (maxSize == -1)
+						{
 							return;
 						}
 
 						// Check for numerical overflow
-						if (maxSize > int.MaxValue - this.index) {
+						if (maxSize > int.MaxValue - this.index)
+						{
 							throw new IOException("decompression failure");
 						}
 
@@ -200,12 +230,14 @@ namespace hpack
 
 					case State.READ_INDEXED_HEADER:
 						var headerIndex = Decoder.DecodeULE128(input);
-						if (headerIndex == -1) {
+						if (headerIndex == -1)
+						{
 							return;
 						}
 
 						// Check for numerical overflow
-						if (headerIndex > int.MaxValue - this.index) {
+						if (headerIndex > int.MaxValue - this.index)
+						{
 							throw new IOException("decompression failure");
 						}
 
@@ -216,12 +248,14 @@ namespace hpack
 					case State.READ_INDEXED_HEADER_NAME:
 						// Header Name matches an entry in the Header Table
 						var nameIndex = Decoder.DecodeULE128(input);
-						if (nameIndex == -1) {
+						if (nameIndex == -1)
+						{
 							return;
 						}
 
 						// Check for numerical overflow
-						if (nameIndex > int.MaxValue - this.index) {
+						if (nameIndex > int.MaxValue - this.index)
+						{
 							throw new IOException("decompression failure");
 						}
 
@@ -233,19 +267,25 @@ namespace hpack
 						b = input.ReadSByte();
 						this.huffmanEncoded = (b & 0x80) == 0x80;
 						this.index = b & 0x7F;
-						if (this.index == 0x7f) {
+						if (this.index == 0x7f)
+						{
 							this.state = State.READ_LITERAL_HEADER_NAME_LENGTH;
-						} else {
+						}
+						else
+						{
 							this.nameLength = this.index;
 
 							// Disallow empty names -- they cannot be represented in HTTP/1.x
-							if (this.nameLength == 0) {
+							if (this.nameLength == 0)
+							{
 								throw new IOException("decompression failure");
 							}
 
 							// Check name length against max header size
-							if (this.ExceedsMaxHeaderSize(this.nameLength)) {
-								if (this.indexType == HpackUtil.IndexType.NONE) {
+							if (this.ExceedsMaxHeaderSize(this.nameLength))
+							{
+								if (this.indexType == HpackUtil.IndexType.NONE)
+								{
 									// Name is unused so skip bytes
 									this.name = EMPTY;
 									this.skipLength = this.nameLength;
@@ -254,7 +294,8 @@ namespace hpack
 								}
 
 								// Check name length against max dynamic table size
-								if (this.nameLength + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity) {
+								if (this.nameLength + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity)
+								{
 									this.dynamicTable.Clear();
 									this.name = EMPTY;
 									this.skipLength = this.nameLength;
@@ -269,19 +310,23 @@ namespace hpack
 					case State.READ_LITERAL_HEADER_NAME_LENGTH:
 						// Header Name is a Literal String
 						this.nameLength = Decoder.DecodeULE128(input);
-						if (this.nameLength == -1) {
+						if (this.nameLength == -1)
+						{
 							return;
 						}
 
 						// Check for numerical overflow
-						if (this.nameLength > int.MaxValue - this.index) {
+						if (this.nameLength > int.MaxValue - this.index)
+						{
 							throw new IOException("decompression failure");
 						}
 						this.nameLength += this.index;
 
 						// Check name length against max header size
-						if (this.ExceedsMaxHeaderSize(this.nameLength)) {
-							if (this.indexType == HpackUtil.IndexType.NONE) {
+						if (this.ExceedsMaxHeaderSize(this.nameLength))
+						{
+							if (this.indexType == HpackUtil.IndexType.NONE)
+							{
 								// Name is unused so skip bytes
 								this.name = EMPTY;
 								this.skipLength = this.nameLength;
@@ -290,7 +335,8 @@ namespace hpack
 							}
 
 							// Check name length against max dynamic table size
-							if (this.nameLength + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity) {
+							if (this.nameLength + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity)
+							{
 								this.dynamicTable.Clear();
 								this.name = EMPTY;
 								this.skipLength = this.nameLength;
@@ -303,7 +349,8 @@ namespace hpack
 
 					case State.READ_LITERAL_HEADER_NAME:
 						// Wait until entire name is readable
-						if (input.BaseStream.Length - input.BaseStream.Position < this.nameLength) {
+						if (input.BaseStream.Length - input.BaseStream.Position < this.nameLength)
+						{
 							return;
 						}
 
@@ -312,12 +359,14 @@ namespace hpack
 						break;
 
 					case State.SKIP_LITERAL_HEADER_NAME:
-						
+
 						this.skipLength -= (int)input.BaseStream.Seek(this.skipLength, SeekOrigin.Current);
-						if (this.skipLength < 0) {
+						if (this.skipLength < 0)
+						{
 							this.skipLength = 0;
 						}
-						if (this.skipLength == 0) {
+						if (this.skipLength == 0)
+						{
 							this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
 						}
 						break;
@@ -326,35 +375,44 @@ namespace hpack
 						b = input.ReadSByte();
 						this.huffmanEncoded = (b & 0x80) == 0x80;
 						this.index = b & 0x7F;
-						if (this.index == 0x7f) {
+						if (this.index == 0x7f)
+						{
 							this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH;
-						} else {
+						}
+						else
+						{
 							this.valueLength = this.index;
 
 							// Check new header size against max header size
 							var newHeaderSize1 = (long)this.nameLength + (long)this.valueLength;
-							if (this.ExceedsMaxHeaderSize(newHeaderSize1)) {
+							if (this.ExceedsMaxHeaderSize(newHeaderSize1))
+							{
 								// truncation will be reported during endHeaderBlock
 								this.headerSize = this.maxHeaderSize + 1;
 
-								if (this.indexType == HpackUtil.IndexType.NONE) {
+								if (this.indexType == HpackUtil.IndexType.NONE)
+								{
 									// Value is unused so skip bytes
 									this.state = State.SKIP_LITERAL_HEADER_VALUE;
 									break;
 								}
 
 								// Check new header size against max dynamic table size
-								if (newHeaderSize1 + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity) {
+								if (newHeaderSize1 + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity)
+								{
 									this.dynamicTable.Clear();
 									this.state = State.SKIP_LITERAL_HEADER_VALUE;
 									break;
 								}
 							}
 
-							if (this.valueLength == 0) {
+							if (this.valueLength == 0)
+							{
 								this.InsertHeader(headerListener, this.name, EMPTY, this.indexType);
 								this.state = State.READ_HEADER_REPRESENTATION;
-							} else {
+							}
+							else
+							{
 								this.state = State.READ_LITERAL_HEADER_VALUE;
 							}
 						}
@@ -363,30 +421,35 @@ namespace hpack
 					case State.READ_LITERAL_HEADER_VALUE_LENGTH:
 						// Header Value is a Literal String
 						this.valueLength = Decoder.DecodeULE128(input);
-						if (this.valueLength == -1) {
+						if (this.valueLength == -1)
+						{
 							return;
 						}
 
 						// Check for numerical overflow
-						if (this.valueLength > int.MaxValue - this.index) {
+						if (this.valueLength > int.MaxValue - this.index)
+						{
 							throw new IOException("decompression failure");
 						}
 						this.valueLength += this.index;
 
 						// Check new header size against max header size
 						var newHeaderSize2 = (long)this.nameLength + (long)this.valueLength;
-						if (newHeaderSize2 + this.headerSize > this.maxHeaderSize) {
+						if (newHeaderSize2 + this.headerSize > this.maxHeaderSize)
+						{
 							// truncation will be reported during endHeaderBlock
 							this.headerSize = this.maxHeaderSize + 1;
 
-							if (this.indexType == HpackUtil.IndexType.NONE) {
+							if (this.indexType == HpackUtil.IndexType.NONE)
+							{
 								// Value is unused so skip bytes
 								this.state = State.SKIP_LITERAL_HEADER_VALUE;
 								break;
 							}
 
 							// Check new header size against max dynamic table size
-							if (newHeaderSize2 + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity) {
+							if (newHeaderSize2 + HeaderField.HEADER_ENTRY_OVERHEAD > this.dynamicTable.Capacity)
+							{
 								this.dynamicTable.Clear();
 								this.state = State.SKIP_LITERAL_HEADER_VALUE;
 								break;
@@ -397,7 +460,8 @@ namespace hpack
 
 					case State.READ_LITERAL_HEADER_VALUE:
 						// Wait until entire value is readable
-						if (input.BaseStream.Length - input.BaseStream.Position < this.valueLength) {
+						if (input.BaseStream.Length - input.BaseStream.Position < this.valueLength)
+						{
 							return;
 						}
 
@@ -408,16 +472,18 @@ namespace hpack
 
 					case State.SKIP_LITERAL_HEADER_VALUE:
 						this.valueLength -= (int)input.BaseStream.Seek(this.valueLength, SeekOrigin.Current);
-						if (this.valueLength < 0) {
+						if (this.valueLength < 0)
+						{
 							this.valueLength = 0;
 						}
-						if (this.valueLength == 0) {
+						if (this.valueLength == 0)
+						{
 							this.state = State.READ_HEADER_REPRESENTATION;
 						}
 						break;
 
 					default:
-						throw new Exception("should not reach here");
+						throw new HPackException("should not reach here");
 				}
 			}
 		}
@@ -443,7 +509,8 @@ namespace hpack
 		public void SetMaxHeaderTableSize(int maxHeaderTableSize)
 		{
 			maxDynamicTableSize = maxHeaderTableSize;
-			if (maxDynamicTableSize < encoderMaxDynamicTableSize) {
+			if (maxDynamicTableSize < encoderMaxDynamicTableSize)
+			{
 				// decoder requires less space than encoder
 				// encoder MUST signal this change
 				this.maxDynamicTableSizeChangeRequired = true;
@@ -492,7 +559,8 @@ namespace hpack
 
 		private void SetDynamicTableSize(int dynamicTableSize)
 		{
-			if (dynamicTableSize > this.maxDynamicTableSize) {
+			if (dynamicTableSize > this.maxDynamicTableSize)
+			{
 				throw new IOException("invalid max dynamic table size");
 			}
 			this.encoderMaxDynamicTableSize = dynamicTableSize;
@@ -502,35 +570,46 @@ namespace hpack
 
 		private void ReadName(int index)
 		{
-			if (index <= StaticTable.Length) {
+			if (index <= StaticTable.Length)
+			{
 				var headerField = StaticTable.GetEntry(index);
 				this.name = headerField.Name;
-			} else if (index - StaticTable.Length <= this.dynamicTable.Length()) {
-					var headerField = this.dynamicTable.GetEntry(index - StaticTable.Length);
-					this.name = headerField.Name;
-				} else {
-					throw new IOException("illegal index value (" + index + ")");
-				}
+			}
+			else if (index - StaticTable.Length <= this.dynamicTable.Length())
+			{
+				var headerField = this.dynamicTable.GetEntry(index - StaticTable.Length);
+				this.name = headerField.Name;
+			}
+			else
+			{
+				throw new IOException("illegal index value (" + index + ")");
+			}
 		}
 
 		private void IndexHeader(int index, IHeaderListener headerListener)
 		{
-			if (index <= StaticTable.Length) {
+			if (index <= StaticTable.Length)
+			{
 				var headerField = StaticTable.GetEntry(index);
 				this.AddHeader(headerListener, headerField.Name, headerField.Value, false);
-			} else if (index - StaticTable.Length <= this.dynamicTable.Length()) {
-					var headerField = this.dynamicTable.GetEntry(index - StaticTable.Length);
-					this.AddHeader(headerListener, headerField.Name, headerField.Value, false);
-				} else {
-					throw new IOException("illegal index value (" + index + ")");
-				}
+			}
+			else if (index - StaticTable.Length <= this.dynamicTable.Length())
+			{
+				var headerField = this.dynamicTable.GetEntry(index - StaticTable.Length);
+				this.AddHeader(headerListener, headerField.Name, headerField.Value, false);
+			}
+			else
+			{
+				throw new IOException("illegal index value (" + index + ")");
+			}
 		}
 
 		private void InsertHeader(IHeaderListener headerListener, byte[] name, byte[] value, HpackUtil.IndexType indexType)
 		{
 			this.AddHeader(headerListener, name, value, indexType == HpackUtil.IndexType.NEVER);
 
-			switch(indexType) {
+			switch (indexType)
+			{
 				case HpackUtil.IndexType.NONE:
 				case HpackUtil.IndexType.NEVER:
 					break;
@@ -540,20 +619,24 @@ namespace hpack
 					break;
 
 				default:
-					throw new Exception("should not reach here");
+					throw new HPackException("should not reach here");
 			}
 		}
 
 		private void AddHeader(IHeaderListener headerListener, byte[] name, byte[] value, bool sensitive)
 		{
-			if (name.Length == 0) {
+			if (name.Length == 0)
+			{
 				throw new ArgumentException("name is empty");
 			}
 			var newSize = this.headerSize + name.Length + value.Length;
-			if (newSize <= this.maxHeaderSize) {
+			if (newSize <= this.maxHeaderSize)
+			{
 				headerListener.AddHeader(name, value, sensitive);
 				this.headerSize = (int)newSize;
-			} else {
+			}
+			else
+			{
 				// truncation will be reported during endHeaderBlock
 				this.headerSize = this.maxHeaderSize + 1;
 			}
@@ -562,7 +645,8 @@ namespace hpack
 		private bool ExceedsMaxHeaderSize(long size)
 		{
 			// Check new header size against max header size
-			if (size + this.headerSize <= this.maxHeaderSize) {
+			if (size + this.headerSize <= this.maxHeaderSize)
+			{
 				return false;
 			}
 
@@ -575,17 +659,22 @@ namespace hpack
 		{
 			var buf = new byte[length];
 			var lengthToRead = length;
-			if (input.BaseStream.Length - input.BaseStream.Position < length) {
+			if (input.BaseStream.Length - input.BaseStream.Position < length)
+			{
 				lengthToRead = (int)input.BaseStream.Length - (int)input.BaseStream.Position;
 			}
 			var readBytes = input.Read(buf, 0, lengthToRead);
-			if (readBytes != length) {
+			if (readBytes != length)
+			{
 				throw new IOException("decompression failure");
 			}
 
-			if (this.huffmanEncoded) {
+			if (this.huffmanEncoded)
+			{
 				return Huffman.DECODER.Decode(buf);
-			} else {
+			}
+			else
+			{
 				return buf;
 			}
 		}
@@ -596,19 +685,23 @@ namespace hpack
 			var markedPosition = input.BaseStream.Position;
 			var result = 0;
 			var shift = 0;
-			while(shift < 32) {
-				if (input.BaseStream.Length - input.BaseStream.Position == 0) {
+			while (shift < 32)
+			{
+				if (input.BaseStream.Length - input.BaseStream.Position == 0)
+				{
 					// Buffer does not contain entire integer,
 					// reset reader index and return -1.
 					input.BaseStream.Position = markedPosition;
 					return -1;
 				}
 				var b = input.ReadSByte();
-				if (shift == 28 && (b & 0xF8) != 0) {
+				if (shift == 28 && (b & 0xF8) != 0)
+				{
 					break;
 				}
 				result |= (b & 0x7F) << shift;
-				if ((b & 0x80) == 0) {
+				if ((b & 0x80) == 0)
+				{
 					return result;
 				}
 				shift += 7;

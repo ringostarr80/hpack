@@ -92,7 +92,8 @@ namespace hpack
 		public int CompareTo(HeaderField anotherHeaderField)
 		{
 			var ret = this.CompareTo(this.name, anotherHeaderField.name);
-			if (ret == 0) {
+			if (ret == 0)
+			{
 				ret = this.CompareTo(this.value, anotherHeaderField.value);
 			}
 			return ret;
@@ -105,10 +106,12 @@ namespace hpack
 			var lim = Math.Min(len1, len2);
 
 			var k = 0;
-			while(k < lim) {
+			while (k < lim)
+			{
 				var b1 = s1[k];
 				var b2 = s2[k];
-				if (b1 != b2) {
+				if (b1 != b2)
+				{
 					return b1 - b2;
 				}
 				k++;
@@ -123,10 +126,12 @@ namespace hpack
 		/// <returns>bool</returns>
 		public override bool Equals(Object obj)
 		{
-			if (obj == this) {
+			if (obj == this)
+			{
 				return true;
 			}
-			if (!(obj is HeaderField)) {
+			if (!(obj is HeaderField))
+			{
 				return false;
 			}
 			var other = (HeaderField)obj;

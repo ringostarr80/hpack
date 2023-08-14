@@ -30,11 +30,13 @@ namespace hpack
 		/// <param name="s2">S2.</param>
 		public static bool Equals(byte[] s1, byte[] s2)
 		{
-			if (s1.Length != s2.Length) {
+			if (s1.Length != s2.Length)
+			{
 				return false;
 			}
 			var c = 0;
-			for(var i = 0; i < s1.Length; i++) {
+			for (var i = 0; i < s1.Length; i++)
+			{
 				c |= (s1[i] ^ s2[i]);
 			}
 			return c == 0;
@@ -47,8 +49,9 @@ namespace hpack
 		/// <param name="obj">Object.</param>
 		public static object RequireNonNull(object obj)
 		{
-			if (obj == null) {
-				throw new NullReferenceException();
+			if (obj == null)
+			{
+				throw new HPackNullReferenceException();
 			}
 			return obj;
 		}

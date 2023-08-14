@@ -64,7 +64,8 @@ namespace hpack
 
 		private void Init(int maxHeaderTableSize, bool useIndexing, bool forceHuffmanOn, bool forceHuffmanOff)
 		{
-			if (maxHeaderTableSize < 0) {
+			if (maxHeaderTableSize < 0)
+			{
 				throw new ArgumentException("Illegal Capacity: " + maxHeaderTableSize);
 			}
 			this.useIndexing = useIndexing;
@@ -80,10 +81,10 @@ namespace hpack
 		/// <param name="output">BinaryWrite</param>
 		/// <param name="name">string</param>
 		/// <param name="value">string</param>
-        public void EncodeHeader(BinaryWriter output, string name, string value)
-        {
-            this.EncodeHeader(output, name, value, false);
-        }
+		public void EncodeHeader(BinaryWriter output, string name, string value)
+		{
+			this.EncodeHeader(output, name, value, false);
+		}
 
 		/// <summary>
 		/// The EncodeHeader method.
@@ -92,10 +93,10 @@ namespace hpack
 		/// <param name="name">string</param>
 		/// <param name="value">string</param>
 		/// <param name="sensitive">bool</param>
-        public void EncodeHeader(BinaryWriter output, string name, string value, bool sensitive)
-        {
-            this.EncodeHeader(output, Encoding.UTF8.GetBytes(name), Encoding.UTF8.GetBytes(value), sensitive);
-        }
+		public void EncodeHeader(BinaryWriter output, string name, string value, bool sensitive)
+		{
+			this.EncodeHeader(output, Encoding.UTF8.GetBytes(name), Encoding.UTF8.GetBytes(value), sensitive);
+		}
 
 		/// <summary>
 		/// The EncodeHeader method.
@@ -103,10 +104,10 @@ namespace hpack
 		/// <param name="output">BinaryWriter</param>
 		/// <param name="name">byte[]</param>
 		/// <param name="value">byte[]</param>
-        public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value)
-        {
-            this.EncodeHeader(output, name, value, false);
-        }
+		public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value)
+		{
+			this.EncodeHeader(output, name, value, false);
+		}
 
 		/// <summary>
 		/// Encode the header field into the header block.
@@ -118,19 +119,24 @@ namespace hpack
 		public void EncodeHeader(BinaryWriter output, byte[] name, byte[] value, bool sensitive)
 		{
 			// If the header value is sensitive then it must never be indexed
-			if (sensitive) {
+			if (sensitive)
+			{
 				var nameIndex = this.GetNameIndex(name);
 				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NEVER, nameIndex);
 				return;
 			}
 
 			// If the peer will only use the static table
-			if (this.capacity == 0) {
+			if (this.capacity == 0)
+			{
 				var staticTableIndex = StaticTable.GetIndex(name, value);
-				if (staticTableIndex == -1) {
+				if (staticTableIndex == -1)
+				{
 					var nameIndex = StaticTable.GetIndex(name);
 					this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, nameIndex);
-				} else {
+				}
+				else
+				{
 					Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex);
 				}
 				return;
@@ -139,30 +145,39 @@ namespace hpack
 			var headerSize = HeaderField.SizeOf(name, value);
 
 			// If the headerSize is greater than the max table size then it must be encoded literally
-			if (headerSize > this.capacity) {
+			if (headerSize > this.capacity)
+			{
 				var nameIndex = this.GetNameIndex(name);
 				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, nameIndex);
 				return;
 			}
 
 			var headerField = this.GetEntry(name, value);
-			if (headerField != null) {
+			if (headerField != null)
+			{
 				var index = this.GetIndex(headerField.Index) + StaticTable.Length;
 				// Section 6.1. Indexed Header Field Representation
 				Encoder.EncodeInteger(output, 0x80, 7, index);
-			} else {
+			}
+			else
+			{
 				var staticTableIndex = StaticTable.GetIndex(name, value);
-				if (staticTableIndex != -1) {
+				if (staticTableIndex != -1)
+				{
 					// Section 6.1. Indexed Header Field Representation
 					Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex);
-				} else {
+				}
+				else
+				{
 					var nameIndex = this.GetNameIndex(name);
-					if (this.useIndexing) {
+					if (this.useIndexing)
+					{
 						this.EnsureCapacity(headerSize);
 					}
 					var indexType = this.useIndexing ? HpackUtil.IndexType.INCREMENTAL : HpackUtil.IndexType.NONE;
 					this.EncodeLiteral(output, name, value, indexType, nameIndex);
-					if (this.useIndexing) {
+					if (this.useIndexing)
+					{
 						this.Add(name, value);
 					}
 				}
@@ -176,10 +191,12 @@ namespace hpack
 		/// <param name="maxHeaderTableSize">Max header table size.</param>
 		public void SetMaxHeaderTableSize(BinaryWriter output, int maxHeaderTableSize)
 		{
-			if (maxHeaderTableSize < 0) {
+			if (maxHeaderTableSize < 0)
+			{
 				throw new ArgumentException("Illegal Capacity: " + maxHeaderTableSize);
 			}
-			if (this.capacity == maxHeaderTableSize) {
+			if (this.capacity == maxHeaderTableSize)
+			{
 				return;
 			}
 			this.capacity = maxHeaderTableSize;
@@ -205,20 +222,28 @@ namespace hpack
 		/// <param name="i">The index.</param>
 		private static void EncodeInteger(BinaryWriter output, int mask, int n, int i)
 		{
-			if (n < 0 || n > 8) {
+			if (n < 0 || n > 8)
+			{
 				throw new ArgumentException("N: " + n);
 			}
 			var nbits = 0xFF >> (8 - n);
-			if (i < nbits) {
+			if (i < nbits)
+			{
 				output.Write((byte)(mask | i));
-			} else {
+			}
+			else
+			{
 				output.Write((byte)(mask | nbits));
 				var length = i - nbits;
-				while(true) {
-					if ((length & ~0x7F) == 0) {
+				while (true)
+				{
+					if ((length & ~0x7F) == 0)
+					{
 						output.Write((byte)length);
 						return;
-					} else {
+					}
+					else
+					{
 						output.Write((byte)((length & 0x7F) | 0x80));
 						length >>= 7;
 					}
@@ -234,10 +259,13 @@ namespace hpack
 		private void EncodeStringLiteral(BinaryWriter output, byte[] stringLiteral)
 		{
 			var huffmanLength = Huffman.ENCODER.GetEncodedLength(stringLiteral);
-			if ((huffmanLength < stringLiteral.Length && !this.forceHuffmanOff) || this.forceHuffmanOn) {
+			if ((huffmanLength < stringLiteral.Length && !this.forceHuffmanOff) || this.forceHuffmanOn)
+			{
 				Encoder.EncodeInteger(output, 0x80, 7, huffmanLength);
 				Huffman.ENCODER.Encode(output, stringLiteral);
-			} else {
+			}
+			else
+			{
 				Encoder.EncodeInteger(output, 0x00, 7, stringLiteral.Length);
 				output.Write(stringLiteral, 0, stringLiteral.Length);
 			}
@@ -255,7 +283,8 @@ namespace hpack
 		{
 			var mask = 0;
 			var prefixBits = 0;
-			switch(indexType) {
+			switch (indexType)
+			{
 				case HpackUtil.IndexType.INCREMENTAL:
 					mask = 0x40;
 					prefixBits = 6;
@@ -272,10 +301,11 @@ namespace hpack
 					break;
 
 				default:
-					throw new Exception("should not reach here");
+					throw new HPackException("should not reach here");
 			}
 			Encoder.EncodeInteger(output, mask, prefixBits, nameIndex == -1 ? 0 : nameIndex);
-			if (nameIndex == -1) {
+			if (nameIndex == -1)
+			{
 				this.EncodeStringLiteral(output, name);
 			}
 			this.EncodeStringLiteral(output, value);
@@ -284,9 +314,11 @@ namespace hpack
 		private int GetNameIndex(byte[] name)
 		{
 			var index = StaticTable.GetIndex(name);
-			if (index == -1) {
+			if (index == -1)
+			{
 				index = this.GetIndex(name);
-				if (index >= 0) {
+				if (index >= 0)
+				{
 					index += StaticTable.Length;
 				}
 			}
@@ -300,9 +332,11 @@ namespace hpack
 		/// <param name="headerSize">Header size.</param>
 		private void EnsureCapacity(int headerSize)
 		{
-			while(this.size + headerSize > this.capacity) {
+			while (this.size + headerSize > this.capacity)
+			{
 				var index = this.Length();
-				if (index == 0) {
+				if (index == 0)
+				{
 					break;
 				}
 				this.Remove();
@@ -337,7 +371,8 @@ namespace hpack
 		public HeaderField GetHeaderField(int index)
 		{
 			var entry = head;
-			while(index-- >= 0) {
+			while (index-- >= 0)
+			{
 				entry = entry.Before;
 			}
 			return entry;
@@ -352,13 +387,16 @@ namespace hpack
 		/// <param name="value">Value.</param>
 		private HeaderEntry GetEntry(byte[] name, byte[] value)
 		{
-			if (this.Length() == 0 || name == null || value == null) {
+			if (this.Length() == 0 || name == null || value == null)
+			{
 				return null;
 			}
 			var h = Encoder.Hash(name);
 			var i = Encoder.Index(h);
-			for(var e = headerFields[i]; e != null; e = e.Next) {
-				if (e.Hash == h && HpackUtil.Equals(name, e.Name) && HpackUtil.Equals(value, e.Value)) {
+			for (var e = headerFields[i]; e != null; e = e.Next)
+			{
+				if (e.Hash == h && HpackUtil.Equals(name, e.Name) && HpackUtil.Equals(value, e.Value))
+				{
 					return e;
 				}
 			}
@@ -373,14 +411,17 @@ namespace hpack
 		/// <param name="name">Name.</param>
 		private int GetIndex(byte[] name)
 		{
-			if (this.Length() == 0 || name == null) {
+			if (this.Length() == 0 || name == null)
+			{
 				return -1;
 			}
 			var h = Encoder.Hash(name);
 			var i = Encoder.Index(h);
 			var index = -1;
-			for(var e = headerFields[i]; e != null; e = e.Next) {
-				if (e.Hash == h && HpackUtil.Equals(name, e.Name)) {
+			for (var e = headerFields[i]; e != null; e = e.Next)
+			{
+				if (e.Hash == h && HpackUtil.Equals(name, e.Name))
+				{
 					index = e.Index;
 					break;
 				}
@@ -395,7 +436,8 @@ namespace hpack
 		/// <param name="index">Index.</param>
 		private int GetIndex(int index)
 		{
-			if (index == -1) {
+			if (index == -1)
+			{
 				return index;
 			}
 			return index - this.head.Before.Index + 1;
@@ -415,13 +457,15 @@ namespace hpack
 			var headerSize = HeaderField.SizeOf(name, value);
 
 			// Clear the table if the header field size is larger than the capacity.
-			if (headerSize > this.capacity) {
+			if (headerSize > this.capacity)
+			{
 				this.Clear();
 				return;
 			}
 
 			// Evict oldest entries until we have enough capacity.
-			while(this.size + headerSize > this.capacity) {
+			while (this.size + headerSize > this.capacity)
+			{
 				this.Remove();
 			}
 
@@ -443,7 +487,8 @@ namespace hpack
 		/// </summary>
 		private void Remove()
 		{
-			if (this.size == 0) {
+			if (this.size == 0)
+			{
 				return;
 			}
 			var eldest = this.head.After;
@@ -451,12 +496,17 @@ namespace hpack
 			var i = Encoder.Index(h);
 			var prev = this.headerFields[i];
 			var e = prev;
-			while(e != null) {
+			while (e != null)
+			{
 				var next = e.Next;
-				if (e == eldest) {
-					if (prev == eldest) {
+				if (e == eldest)
+				{
+					if (prev == eldest)
+					{
 						this.headerFields[i] = next;
-					} else {
+					}
+					else
+					{
 						prev.Next = next;
 					}
 					eldest.Remove();
@@ -474,7 +524,8 @@ namespace hpack
 		/// </summary>
 		private void Clear()
 		{
-			for(var i = 0; i < this.headerFields.Length; i++) {
+			for (var i = 0; i < this.headerFields.Length; i++)
+			{
 				this.headerFields[i] = null;
 			}
 			this.head.Before = this.head.After = this.head;
@@ -489,16 +540,22 @@ namespace hpack
 		private static int Hash(byte[] name)
 		{
 			var h = 0;
-			for(var i = 0; i < name.Length; i++) {
+			for (var i = 0; i < name.Length; i++)
+			{
 				h = 31 * h + name[i];
 			}
-			if (h > 0) {
+			if (h > 0)
+			{
 				return h;
-			} else if (h == int.MinValue) {
-					return int.MaxValue;
-				} else {
-					return -h;
-				}
+			}
+			else if (h == int.MinValue)
+			{
+				return int.MaxValue;
+			}
+			else
+			{
+				return -h;
+			}
 		}
 
 		/// <summary>

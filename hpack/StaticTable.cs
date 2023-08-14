@@ -121,7 +121,8 @@ namespace hpack
 		public static int GetIndex(byte[] name)
 		{
 			var nameString = Encoding.UTF8.GetString(name);
-			if (!STATIC_INDEX_BY_NAME.ContainsKey(nameString)) {
+			if (!STATIC_INDEX_BY_NAME.ContainsKey(nameString))
+			{
 				return -1;
 			}
 			return STATIC_INDEX_BY_NAME[nameString];
@@ -137,17 +138,21 @@ namespace hpack
 		public static int GetIndex(byte[] name, byte[] value)
 		{
 			var index = GetIndex(name);
-			if (index == -1) {
+			if (index == -1)
+			{
 				return -1;
 			}
 
 			// Note this assumes all entries for a given header field are sequential.
-			while(index <= StaticTable.Length) {
+			while (index <= StaticTable.Length)
+			{
 				var entry = GetEntry(index);
-				if (!HpackUtil.Equals(name, entry.Name)) {
+				if (!HpackUtil.Equals(name, entry.Name))
+				{
 					break;
 				}
-				if (HpackUtil.Equals(value, entry.Value)) {
+				if (HpackUtil.Equals(value, entry.Value))
+				{
 					return index;
 				}
 				index++;
@@ -167,7 +172,8 @@ namespace hpack
 
 			// Iterate through the static table in reverse order to
 			// save the smallest index for a given name in the map.
-			for(var index = length; index > 0; index--) {
+			for (var index = length; index > 0; index--)
+			{
 				var entry = GetEntry(index);
 				var name = Encoding.UTF8.GetString(entry.Name);
 				ret[name] = index;
