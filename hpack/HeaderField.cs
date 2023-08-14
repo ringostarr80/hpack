@@ -32,7 +32,7 @@ namespace hpack
 		/// The additional 32 octets account for an estimated
 		/// overhead associated with the structure.
 		/// </summary>
-		public static int HEADER_ENTRY_OVERHEAD = 32;
+		public static readonly int HEADER_ENTRY_OVERHEAD = 32;
 
 		/// <summary>
 		/// The Name.

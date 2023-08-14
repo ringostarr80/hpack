@@ -165,12 +165,12 @@ namespace hpack
 
 		private static Node BuildTree(int[] codes, byte[] lengths)
 		{
-			var root = new Node();
+			var node = new Node();
 			for (var i = 0; i < codes.Length; i++)
 			{
-				Insert(root, i, codes[i], lengths[i]);
+				Insert(node, i, codes[i], lengths[i]);
 			}
-			return root;
+			return node;
 		}
 
 		private static void Insert(Node root, int symbol, int code, byte length)

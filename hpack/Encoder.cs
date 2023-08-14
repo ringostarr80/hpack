@@ -516,7 +516,6 @@ namespace hpack
 				prev = e;
 				e = next;
 			}
-			return;
 		}
 
 		/// <summary>
@@ -572,20 +571,15 @@ namespace hpack
 		/// </summary>
 		private sealed class HeaderEntry : HeaderField
 		{
-			private readonly int hash = 0;
-
-			// This is used to compute the index in the dynamic table.
-			private readonly int index = 0;
-
 			public HeaderEntry Before { get; set; } = null;
 
 			public HeaderEntry After { get; set; } = null;
 
 			public HeaderEntry Next { get; set; } = null;
 
-			public int Hash { get { return this.hash; } }
+			public int Hash { get; } = 0;
 
-			public int Index { get { return this.index; } }
+			public int Index { get; } = 0;
 
 			/// <summary>
 			/// Creates new entry.
@@ -597,8 +591,8 @@ namespace hpack
 			/// <param name="next">Next.</param>
 			public HeaderEntry(int hash, byte[] name, byte[] value, int index, HeaderEntry next) : base(name, value)
 			{
-				this.index = index;
-				this.hash = hash;
+				this.Index = index;
+				this.Hash = hash;
 				this.Next = next;
 			}
 
