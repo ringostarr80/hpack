@@ -27,7 +27,7 @@ jobs:
         language: ['csharp']
         # Learn more...
         # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
-        os: ['ubuntu-18.04', 'ubuntu-20.04', 'ubuntu-22.04', 'windows-2019', 'windows-2022', 'macos-10.15', 'macos-11']
+        os: ['ubuntu-20.04', 'ubuntu-22.04', 'windows-2019', 'windows-2022', 'macos-11']
 
     steps:
     - name: Checkout repository
