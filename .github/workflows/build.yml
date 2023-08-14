@@ -21,6 +21,8 @@ jobs:
         run: dotnet restore
       - name: Run Tests with Coverlet
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+      - name: Find Coverlet file
+        run: find . -name "coverage.opencover.xml"
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
