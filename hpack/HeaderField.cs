@@ -24,8 +24,8 @@ namespace hpack
 	/// </summary>
 	public class HeaderField : IComparable<HeaderField>
 	{
-		private byte[] name;
-		private byte[] value;
+		private readonly byte[] name;
+		private readonly byte[] value;
 
 		/// <summary>
 		/// Section 4.1. Calculating Table Size
