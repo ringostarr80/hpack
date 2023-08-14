@@ -48,61 +48,58 @@ namespace hpack
 		/// <exception cref="IOException">throws IOException if an I/O error occurs. In particular, an <code>IOException</code> may be thrown if the output stream has been closed.</exception>
 		public byte[] Decode(byte[] buf)
 		{
-			using (var baos = new MemoryStream())
-			{
-				var node = this.root;
-				var current = 0;
-				var bits = 0;
-				for (var i = 0; i < buf.Length; i++)
-				{
-					var b = buf[i] & 0xFF;
-					current = (current << 8) | b;
-					bits += 8;
-					while (bits >= 8)
-					{
-						var c = (current >> (bits - 8)) & 0xFF;
-						node = node.Children[c];
-						bits -= node.Bits;
-						if (node.IsTerminal())
-						{
-							if (node.Symbol == HpackUtil.HUFFMAN_EOS)
-							{
-								throw new IOException("EOS Decoded");
-							}
-							baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
-							node = this.root;
-						}
+            using var baos = new MemoryStream();
+            var node = this.root;
+            var current = 0;
+            var bits = 0;
+            for (var i = 0; i < buf.Length; i++)
+            {
+                var b = buf[i] & 0xFF;
+                current = (current << 8) | b;
+                bits += 8;
+                while (bits >= 8)
+                {
+                    var c = (current >> (bits - 8)) & 0xFF;
+                    node = node.Children[c];
+                    bits -= node.Bits;
+					if (node.IsTerminal() && node.Symbol == HpackUtil.HUFFMAN_EOS) {
+						throw new IOException("EOS Decoded");
 					}
-				}
 
-				while (bits > 0)
-				{
-					var c = (current << (8 - bits)) & 0xFF;
-					node = node.Children[c];
-					if (node.IsTerminal() && node.Bits <= bits)
-					{
-						bits -= node.Bits;
-						baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
-						node = this.root;
-					}
-					else
-					{
-						break;
-					}
-				}
+                    if (node.IsTerminal())
+                    {
+                        baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
+                        node = this.root;
+                    }
+                }
+            }
 
-				// Section 5.2. String Literal Representation
-				// Padding not corresponding to the most significant bits of the code
-				// for the EOS symbol (0xFF) MUST be treated as a decoding error.
-				var mask = (1 << bits) - 1;
-				if ((current & mask) != mask)
-				{
-					throw new IOException("Invalid Padding");
-				}
+            while (bits > 0)
+            {
+                var c = (current << (8 - bits)) & 0xFF;
+                node = node.Children[c];
+                if (node.IsTerminal() && node.Bits <= bits)
+                {
+                    bits -= node.Bits;
+                    baos.Write(new byte[] { (byte)node.Symbol }, 0, 1);
+                    node = this.root;
+					continue;
+                }
 
-				return baos.ToArray();
-			}
-		}
+				break;
+            }
+
+            // Section 5.2. String Literal Representation
+            // Padding not corresponding to the most significant bits of the code
+            // for the EOS symbol (0xFF) MUST be treated as a decoding error.
+            var mask = (1 << bits) - 1;
+            if ((current & mask) != mask)
+            {
+                throw new IOException("Invalid Padding");
+            }
+
+            return baos.ToArray();
+        }
 
 		/// <summary>
 		/// The Node class
