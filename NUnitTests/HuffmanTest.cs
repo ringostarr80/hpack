@@ -62,7 +62,8 @@ namespace hpack
 			var buf = new byte[2];
 			buf[0] = 0x0F; // '1', 'EOS'
 			buf[1] = (byte)0xFF; // 'EOS'
-			Huffman.DECODER.Decode(buf);
+			var decoded = Huffman.DECODER.Decode(buf);
+			Assert.AreEqual(new byte[] { 0x31 }, decoded);
 		}
 
 		private void roundTrip(String s)
