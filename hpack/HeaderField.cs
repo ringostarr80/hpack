@@ -176,9 +176,20 @@ namespace hpack
 		{
 			return left.CompareTo(right) > 0;
 		}
+
+		public static bool operator >=(HeaderField left, HeaderField right)
+		{
+			return left.CompareTo(right) >= 0;
+		}
+
 		public static bool operator <(HeaderField left, HeaderField right)
 		{
 			return left.CompareTo(right) < 0;
+		}
+
+		public static bool operator <=(HeaderField left, HeaderField right)
+		{
+			return left.CompareTo(right) <= 0;
 		}
 	}
 }
