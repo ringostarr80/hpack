@@ -332,7 +332,7 @@ namespace hpack
 							this.valueLength = this.index;
 
 							// Check new header size against max header size
-							var newHeaderSize1 = (long)((long)this.nameLength + (long)this.valueLength);
+							var newHeaderSize1 = (long)this.nameLength + (long)this.valueLength;
 							if (this.ExceedsMaxHeaderSize(newHeaderSize1)) {
 								// truncation will be reported during endHeaderBlock
 								this.headerSize = this.maxHeaderSize + 1;
@@ -374,7 +374,7 @@ namespace hpack
 						this.valueLength += this.index;
 
 						// Check new header size against max header size
-						var newHeaderSize2 = (long)((long)this.nameLength + (long)this.valueLength);
+						var newHeaderSize2 = (long)this.nameLength + (long)this.valueLength;
 						if (newHeaderSize2 + this.headerSize > this.maxHeaderSize) {
 							// truncation will be reported during endHeaderBlock
 							this.headerSize = this.maxHeaderSize + 1;
@@ -429,7 +429,7 @@ namespace hpack
 		/// <returns><c>true</c>, if header block was ended, <c>false</c> otherwise.</returns>
 		public bool EndHeaderBlock()
 		{
-			var truncated = (headerSize > maxHeaderSize) ? true : false;
+			var truncated = headerSize > maxHeaderSize;
 			this.Reset();
 			return truncated;
 		}
@@ -549,7 +549,7 @@ namespace hpack
 			if (name.Length == 0) {
 				throw new ArgumentException("name is empty");
 			}
-			var newSize = (long)(this.headerSize + name.Length + value.Length);
+			var newSize = this.headerSize + name.Length + value.Length;
 			if (newSize <= this.maxHeaderSize) {
 				headerListener.AddHeader(name, value, sensitive);
 				this.headerSize = (int)newSize;

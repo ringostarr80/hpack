@@ -70,7 +70,7 @@ namespace hpack
 		/// Appendix B: Huffman Codes
 		/// </summary>
 		/// <note type="rfc">http://tools.ietf.org/html/rfc7541#appendix-B</note>
-		public static int[] HUFFMAN_CODES = {
+		public static readonly int[] HUFFMAN_CODES = {
 			0x1ff8,
 			0x7fffd8,
 			0xfffffe2,
@@ -333,7 +333,7 @@ namespace hpack
 		/// <summary>
 		/// The Huffman code lengths.
 		/// </summary>
-		public static byte[] HUFFMAN_CODE_LENGTHS = {
+		public static readonly byte[] HUFFMAN_CODE_LENGTHS = {
 			13, 23, 28, 28, 28, 28, 28, 28, 28, 24, 30, 28, 28, 30, 28, 28,
 			28, 28, 28, 28, 28, 28, 30, 28, 28, 28, 28, 28, 28, 28, 28, 28,
 			6, 10, 10, 12, 13,  6,  8, 11, 10, 10,  8, 11,  8,  6,  6,  6,
@@ -356,6 +356,6 @@ namespace hpack
 		/// <summary>
 		/// The Huffman Eos
 		/// </summary>
-		public static int HUFFMAN_EOS = 256;
+		public static readonly int HUFFMAN_EOS = 256;
 	}
 }

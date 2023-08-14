@@ -439,12 +439,12 @@ namespace hpack
 		}
 
 		/// <summary>
-		/// Remove and return the oldest header field from the dynamic table.
+		/// Remove the oldest header field from the dynamic table.
 		/// </summary>
-		private HeaderField Remove()
+		private void Remove()
 		{
 			if (this.size == 0) {
-				return null;
+				return;
 			}
 			var eldest = this.head.After;
 			var h = eldest.Hash;
@@ -461,12 +461,12 @@ namespace hpack
 					}
 					eldest.Remove();
 					this.size -= eldest.Size;
-					return eldest;
+					return;
 				}
 				prev = e;
 				e = next;
 			}
-			return null;
+			return;
 		}
 
 		/// <summary>
@@ -513,7 +513,7 @@ namespace hpack
 		/// <summary>
 		/// A linked hash map HeaderField entry.
 		/// </summary>
-		private class HeaderEntry : HeaderField
+		private sealed class HeaderEntry : HeaderField
 		{
 			private readonly int hash = 0;
 
