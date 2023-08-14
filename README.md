@@ -4,6 +4,7 @@
 ![NuGet](https://img.shields.io/nuget/v/hpack)
 ![Version](https://img.shields.io/github/v/tag/ringostarr80/hpack?sort=semver)
 ![Workflow: CodeQL](https://img.shields.io/github/actions/workflow/status/ringostarr80/hpack/.github/workflows/codeql-analysis.yml?branch=main)
+[![codecov](https://codecov.io/gh/ringostarr80/hpack/branch/main/graph/badge.svg?token=QLXN17BQTE)](https://codecov.io/gh/ringostarr80/hpack)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ringostarr80_hpack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ringostarr80_hpack)
 
 Header Compression for HTTP/2 written in C#
