@@ -126,18 +126,18 @@ namespace hpack
 		/// <returns>bool</returns>
 		public override bool Equals(Object obj)
 		{
-			if (obj == this)
+			if (obj is HeaderField other)
 			{
-				return true;
+				if (other == this)
+				{
+					return true;
+				}
+				var nameEquals = HpackUtil.Equals(this.name, other.name);
+				var valueEquals = HpackUtil.Equals(this.value, other.value);
+				return nameEquals && valueEquals;
 			}
-			if (!(obj is HeaderField))
-			{
-				return false;
-			}
-			var other = (HeaderField)obj;
-			var nameEquals = HpackUtil.Equals(this.name, other.name);
-			var valueEquals = HpackUtil.Equals(this.value, other.value);
-			return nameEquals && valueEquals;
+
+			return false;
 		}
 
 		/// <summary>
@@ -156,6 +156,29 @@ namespace hpack
 		public override String ToString()
 		{
 			return String.Format("{0}: {1}", Encoding.UTF8.GetString(this.name), Encoding.UTF8.GetString(this.value));
+		}
+
+		public static bool operator ==(HeaderField left, HeaderField right)
+		{
+			if (object.ReferenceEquals(left, null))
+			{
+				return object.ReferenceEquals(right, null);
+			}
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(HeaderField left, HeaderField right)
+		{
+			return !(left == right);
+		}
+
+		public static bool operator >(HeaderField left, HeaderField right)
+		{
+			return left.CompareTo(right) > 0;
+		}
+		public static bool operator <(HeaderField left, HeaderField right)
+		{
+			return left.CompareTo(right) < 0;
 		}
 	}
 }
