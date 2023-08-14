@@ -121,23 +121,21 @@ namespace hpack
 			// If the header value is sensitive then it must never be indexed
 			if (sensitive)
 			{
-				var nameIndex = this.GetNameIndex(name);
-				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NEVER, nameIndex);
+				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NEVER, this.GetNameIndex(name));
 				return;
 			}
 
 			// If the peer will only use the static table
 			if (this.capacity == 0)
 			{
-				var staticTableIndex = StaticTable.GetIndex(name, value);
-				if (staticTableIndex == -1)
+				var staticTableIndex1 = StaticTable.GetIndex(name, value);
+				if (staticTableIndex1 == -1)
 				{
-					var nameIndex = StaticTable.GetIndex(name);
-					this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, nameIndex);
+					this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, StaticTable.GetIndex(name));
 				}
 				else
 				{
-					Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex);
+					Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex1);
 				}
 				return;
 			}
@@ -147,8 +145,7 @@ namespace hpack
 			// If the headerSize is greater than the max table size then it must be encoded literally
 			if (headerSize > this.capacity)
 			{
-				var nameIndex = this.GetNameIndex(name);
-				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, nameIndex);
+				this.EncodeLiteral(output, name, value, HpackUtil.IndexType.NONE, this.GetNameIndex(name));
 				return;
 			}
 
@@ -158,29 +155,26 @@ namespace hpack
 				var index = this.GetIndex(headerField.Index) + StaticTable.Length;
 				// Section 6.1. Indexed Header Field Representation
 				Encoder.EncodeInteger(output, 0x80, 7, index);
+				return;
 			}
-			else
+
+			var staticTableIndex2 = StaticTable.GetIndex(name, value);
+			if (staticTableIndex2 != -1)
 			{
-				var staticTableIndex = StaticTable.GetIndex(name, value);
-				if (staticTableIndex != -1)
-				{
-					// Section 6.1. Indexed Header Field Representation
-					Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex);
-				}
-				else
-				{
-					var nameIndex = this.GetNameIndex(name);
-					if (this.useIndexing)
-					{
-						this.EnsureCapacity(headerSize);
-					}
-					var indexType = this.useIndexing ? HpackUtil.IndexType.INCREMENTAL : HpackUtil.IndexType.NONE;
-					this.EncodeLiteral(output, name, value, indexType, nameIndex);
-					if (this.useIndexing)
-					{
-						this.Add(name, value);
-					}
-				}
+				// Section 6.1. Indexed Header Field Representation
+				Encoder.EncodeInteger(output, 0x80, 7, staticTableIndex2);
+				return;
+			}
+
+			if (this.useIndexing)
+			{
+				this.EnsureCapacity(headerSize);
+			}
+			var indexType = this.useIndexing ? HpackUtil.IndexType.INCREMENTAL : HpackUtil.IndexType.NONE;
+			this.EncodeLiteral(output, name, value, indexType, this.GetNameIndex(name));
+			if (this.useIndexing)
+			{
+				this.Add(name, value);
 			}
 		}
 
