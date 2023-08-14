@@ -24,8 +24,8 @@ namespace hpack
 	/// </summary>
 	public class HuffmanEncoder
 	{
-		private int[] codes;
-		private byte[] lengths;
+		private readonly int[] codes;
+		private readonly byte[] lengths;
 
 		/// <summary>
 		/// Creates a new Huffman encoder with the specified Huffman coding.

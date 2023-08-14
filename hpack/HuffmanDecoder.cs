@@ -24,7 +24,7 @@ namespace hpack
 	/// </summary>
 	public class HuffmanDecoder
 	{
-		private Node root = null;
+		private readonly Node root = null;
 
 		/// <summary>
 		/// Creates a new Huffman decoder with the specified Huffman coding.
@@ -98,11 +98,11 @@ namespace hpack
 		/// </summary>
 		public class Node
 		{
-			private int symbol;
+			private readonly int symbol;
 			// terminal nodes have a symbol
-			private int bits;
+			private readonly int bits;
 			// number of bits matched by the node
-			private Node[] children;
+			private readonly Node[] children;
 			// internal nodes have children
 
 			/// <summary>
@@ -137,7 +137,6 @@ namespace hpack
 			/// <param name="bits">the number of bits matched by this node</param>
 			public Node(int symbol, int bits)
 			{
-				//assert(bits > 0 && bits <= 8);
 				this.symbol = symbol;
 				this.bits = bits;
 				this.children = null;
@@ -149,7 +148,7 @@ namespace hpack
 			/// <returns>bool</returns>
 			public bool IsTerminal()
 			{
-				return (this.children == null) ? true : false;
+				return this.children == null;
 			}
 		}
 
