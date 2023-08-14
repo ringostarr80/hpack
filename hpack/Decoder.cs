@@ -158,6 +158,7 @@ namespace hpack
 				// Encoder MUST signal maximum dynamic table size change
 				throw new IOException("max dynamic table size change required");
 			}
+
 			if (b < 0)
 			{
 				// Indexed Header Field
@@ -174,8 +175,11 @@ namespace hpack
 				{
 					this.IndexHeader(this.index, headerListener);
 				}
+
+				return true;
 			}
-			else if ((b & 0x40) == 0x40)
+
+			if ((b & 0x40) == 0x40)
 			{
 				// Literal Header Field with Incremental Indexing
 				this.indexType = HpackUtil.IndexType.INCREMENTAL;
@@ -194,8 +198,11 @@ namespace hpack
 					this.ReadName(this.index);
 					this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
 				}
+
+				return true;
 			}
-			else if ((b & 0x20) == 0x20)
+
+			if ((b & 0x20) == 0x20)
 			{
 				// Dynamic Table Size Update
 				this.index = b & 0x1F;
@@ -208,26 +215,26 @@ namespace hpack
 					this.SetDynamicTableSize(index);
 					this.state = State.READ_HEADER_REPRESENTATION;
 				}
+
+				return true;
+			}
+
+			// Literal Header Field without Indexing / never Indexed
+			this.indexType = ((b & 0x10) == 0x10) ? HpackUtil.IndexType.NEVER : HpackUtil.IndexType.NONE;
+			this.index = b & 0x0F;
+			if (this.index == 0)
+			{
+				this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
+			}
+			else if (this.index == 0x0F)
+			{
+				this.state = State.READ_INDEXED_HEADER_NAME;
 			}
 			else
 			{
-				// Literal Header Field without Indexing / never Indexed
-				this.indexType = ((b & 0x10) == 0x10) ? HpackUtil.IndexType.NEVER : HpackUtil.IndexType.NONE;
-				this.index = b & 0x0F;
-				if (this.index == 0)
-				{
-					this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
-				}
-				else if (this.index == 0x0F)
-				{
-					this.state = State.READ_INDEXED_HEADER_NAME;
-				}
-				else
-				{
-					// Index was stored as the prefix
-					this.ReadName(this.index);
-					this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
-				}
+				// Index was stored as the prefix
+				this.ReadName(this.index);
+				this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
 			}
 
 			return true;
