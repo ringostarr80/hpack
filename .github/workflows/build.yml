@@ -13,6 +13,14 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Run Tests with Coverlet
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
