@@ -66,7 +66,7 @@ namespace hpack
 			Assert.AreEqual(new byte[] { 0x31 }, decoded);
 		}
 
-		private void roundTrip(String s)
+		private static void roundTrip(String s)
 		{
 			roundTrip(Huffman.ENCODER, Huffman.DECODER, s);
 		}
@@ -76,7 +76,7 @@ namespace hpack
 			roundTrip(encoder, decoder, Encoding.UTF8.GetBytes(s));
 		}
 
-		private void roundTrip(byte[] buf)
+		private static void roundTrip(byte[] buf)
 		{
 			roundTrip(Huffman.ENCODER, Huffman.DECODER, buf);
 		}

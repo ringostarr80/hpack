@@ -91,15 +91,15 @@ namespace hpack
 		/// <returns>int</returns>
 		public int CompareTo(HeaderField anotherHeaderField)
 		{
-			var ret = this.CompareTo(this.name, anotherHeaderField.name);
+			var ret = CompareTo(this.name, anotherHeaderField.name);
 			if (ret == 0)
 			{
-				ret = this.CompareTo(this.value, anotherHeaderField.value);
+				ret = CompareTo(this.value, anotherHeaderField.value);
 			}
 			return ret;
 		}
 
-		private int CompareTo(byte[] s1, byte[] s2)
+		private static int CompareTo(byte[] s1, byte[] s2)
 		{
 			var len1 = s1.Length;
 			var len2 = s2.Length;

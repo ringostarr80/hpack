@@ -177,7 +177,7 @@ namespace hpack
 			//reset(this.mockListener);
 			var sb = new StringBuilder();
 			for(var i = 0; i < 4096; i++) {
-				sb.Append("a");
+				sb.Append('a');
 			}
 			//String value = sb.ToString();
 			sb = new StringBuilder();

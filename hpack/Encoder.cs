@@ -27,7 +27,7 @@ namespace hpack
 	public class Encoder
 	{
 		private static int BUCKET_SIZE = 17;
-		private static byte[] EMPTY = { };
+		private static byte[] EMPTY = Array.Empty<byte>();
 
 		// for testing
 		private bool useIndexing;

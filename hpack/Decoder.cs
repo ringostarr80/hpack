@@ -24,7 +24,7 @@ namespace hpack
 	/// </summary>
 	public class Decoder
 	{
-		private static byte[] EMPTY = { };
+		private static byte[] EMPTY = Array.Empty<byte>();
 
 		private readonly DynamicTable dynamicTable;
 
