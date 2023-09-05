@@ -67,7 +67,7 @@ namespace hpack
 			{
 				throw new HPackNullReferenceException("data");
 			}
-			else if (off < 0 || len < 0 || (off + len) < 0 || off > data.Length || (off + len) > data.Length)
+			else if (off < 0 || len < 0 || off > data.Length || (off + len) > data.Length)
 			{
 				throw new HPackIndexOutOfRangeException();
 			}
