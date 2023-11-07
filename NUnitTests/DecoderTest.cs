@@ -80,6 +80,8 @@ namespace hpack
 				Assert.AreEqual(1, input.BaseStream.Length - input.BaseStream.Position);
 				this.decoder.Decode(input, this.mockListener);
 				Assert.AreEqual(1, input.BaseStream.Length - input.BaseStream.Position);
+				Assert.AreEqual(0, this.decoder.Length());
+				Assert.AreEqual(0, this.decoder.Size());
 			}
 		}
 
