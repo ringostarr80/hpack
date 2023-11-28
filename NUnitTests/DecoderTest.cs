@@ -77,11 +77,11 @@ namespace hpack
 			}
 			using(var input = new BinaryReader(new MemoryStream(compressedInput))) {
 				this.decoder.Decode(input, this.mockListener);
-				Assert.AreEqual(1, input.BaseStream.Length - input.BaseStream.Position);
+				Assert.That(input.BaseStream.Length - input.BaseStream.Position, Is.EqualTo(1));
 				this.decoder.Decode(input, this.mockListener);
-				Assert.AreEqual(1, input.BaseStream.Length - input.BaseStream.Position);
-				Assert.AreEqual(0, this.decoder.Length());
-				Assert.AreEqual(0, this.decoder.Size());
+				Assert.That(input.BaseStream.Length - input.BaseStream.Position, Is.EqualTo(1));
+				Assert.That(this.decoder.Length(), Is.Zero);
+				Assert.That(this.decoder.Size(), Is.Zero);
 			}
 		}
 
@@ -110,9 +110,9 @@ namespace hpack
 		public void testDynamicTableSizeUpdate()
 		{
 			this.decode("20");
-			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
 			this.decode("3FE11F");
-			Assert.AreEqual(4096, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.EqualTo(4096));
 		}
 
 		[Test]
@@ -120,7 +120,7 @@ namespace hpack
 		{
 			this.decoder.SetMaxHeaderTableSize(32);
 			this.decode("3F00");
-			Assert.AreEqual(31, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.EqualTo(31));
 		}
 
 		[Test]
@@ -141,7 +141,7 @@ namespace hpack
 		public void testReduceMaxDynamicTableSize()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
-			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
 			this.decode("2081");
 		}
 
@@ -149,7 +149,7 @@ namespace hpack
 		public void testTooLargeDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
-			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
 			Assert.Throws<IOException>(delegate { this.decode("21"); }); // encoder max header table size not small enough
 		}
 
@@ -157,7 +157,7 @@ namespace hpack
 		public void testMissingDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
-			Assert.AreEqual(0, decoder.GetMaxHeaderTableSize());
+			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
 			Assert.Throws<IOException>(delegate { this.decode("81"); });
 		}
 
@@ -174,7 +174,7 @@ namespace hpack
 			this.decode("4004" + hex("name") + "05" + hex("value"));
 			//verify(this.mockListener).addHeader(getBytes("name"), getBytes("value"), false);
 			//verifyNoMoreInteractions(this.mockListener);
-			Assert.IsFalse(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.False);
 
 			//reset(this.mockListener);
 			var sb = new StringBuilder();
@@ -190,7 +190,7 @@ namespace hpack
 			this.decode(sb.ToString());
 			//verify(this.mockListener).addHeader(getBytes(":authority"), getBytes(value), false);
 			//verifyNoMoreInteractions(this.mockListener);
-			Assert.IsFalse(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.False);
 
 			// Verify next header is inserted at index 62
 			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
@@ -212,7 +212,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify next header is inserted at index 62
 			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
@@ -235,7 +235,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify next header is inserted at index 62
 			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
@@ -263,7 +263,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
 			Assert.Throws<IOException>(delegate { this.decode("BE"); });
@@ -284,7 +284,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
 			Assert.Throws<IOException>(delegate { this.decode("BE"); });
@@ -310,7 +310,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
 			Assert.Throws<IOException>(delegate { this.decode("BE"); });
@@ -331,7 +331,7 @@ namespace hpack
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
-			Assert.IsTrue(decoder.EndHeaderBlock());
+			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
 			Assert.Throws<IOException>(delegate { this.decode("BE"); });

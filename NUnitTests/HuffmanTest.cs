@@ -32,7 +32,7 @@ namespace hpack
 				roundTrip(s.Substring(0, i));
 			}
 
-			var random = new Random(123456789);
+			var random = new Random(123456789); // DevSkim: ignore DS148264
 			var buf = new byte[4096];
 			random.NextBytes(buf);
 			roundTrip(buf);
@@ -63,7 +63,7 @@ namespace hpack
 			buf[0] = 0x0F; // '1', 'EOS'
 			buf[1] = (byte)0xFF; // 'EOS'
 			var decoded = Huffman.DECODER.Decode(buf);
-			Assert.AreEqual(new byte[] { 0x31 }, decoded);
+			Assert.That(decoded, Is.EqualTo(new byte[] { 0x31 }));
 		}
 
 		private static void roundTrip(String s)
@@ -87,7 +87,7 @@ namespace hpack
 				using(var dos = new BinaryWriter(baos)) {
 					encoder.Encode(dos, buf);
 					var actualBytes = decoder.Decode(baos.ToArray());
-					Assert.IsTrue(buf.SequenceEqual(actualBytes));
+					Assert.That(buf.SequenceEqual(actualBytes), Is.True);
 				}
 			}
 		}
