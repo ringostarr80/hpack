@@ -8,14 +8,14 @@ namespace hpack
 		public void testGetIndexByName()
 		{
             var indexOfAuthority = StaticTable.GetIndex(System.Text.Encoding.UTF8.GetBytes(":authority"));
-            Assert.AreEqual(1, indexOfAuthority);
+            Assert.That(indexOfAuthority, Is.EqualTo(1));
         }
 
         [Test]
 		public void testGetIndexByUnknownName()
 		{
             var indexOfInvalid = StaticTable.GetIndex(System.Text.Encoding.UTF8.GetBytes(":invalid"));
-            Assert.AreEqual(-1, indexOfInvalid);
+            Assert.That(indexOfInvalid, Is.EqualTo(-1));
         }
     }
 }
