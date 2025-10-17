@@ -1,7 +1,7 @@
 # hpack
 
 [![License: CC0](https://img.shields.io/github/license/ringostarr80/hpack.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-![Workflow: CodeQL](https://img.shields.io/github/actions/workflow/status/ringostarr80/hpack/.github/workflows/codeql-analysis.yml?branch=main)
+![Workflow: CodeQL](https://img.shields.io/github/actions/workflow/status/ringostarr80/hpack/.github/workflows/dotnet.yml?branch=main)
 ![NuGet](https://img.shields.io/nuget/v/hpack)
 ![Version](https://img.shields.io/github/v/tag/ringostarr80/hpack?sort=semver)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ringostarr80_hpack&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ringostarr80_hpack)
