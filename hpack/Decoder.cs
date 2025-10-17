@@ -24,7 +24,8 @@ namespace hpack
 	/// </summary>
 	public class Decoder
 	{
-		private static byte[] EMPTY = Array.Empty<byte>();
+		private const string DECOMPRESSION_FAILURE = "decompression failure";
+		private static readonly byte[] EMPTY = Array.Empty<byte>();
 
 		private readonly DynamicTable dynamicTable;
 
@@ -251,7 +252,7 @@ namespace hpack
 			// Check for numerical overflow
 			if (headerIndex > int.MaxValue - this.index)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 
 			this.IndexHeader(this.index + headerIndex, headerListener);
@@ -272,7 +273,7 @@ namespace hpack
 			// Check for numerical overflow
 			if (nameIndex > int.MaxValue - this.index)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 
 			this.ReadName(this.index + nameIndex);
@@ -309,7 +310,7 @@ namespace hpack
 			// Check for numerical overflow
 			if (this.nameLength > int.MaxValue - this.index)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 			this.nameLength += this.index;
 
@@ -356,7 +357,7 @@ namespace hpack
 				// Disallow empty names -- they cannot be represented in HTTP/1.x
 				if (this.nameLength == 0)
 				{
-					throw new IOException("decompression failure");
+					throw new IOException(DECOMPRESSION_FAILURE);
 				}
 
 				// Check name length against max header size
@@ -414,7 +415,7 @@ namespace hpack
 			// Check for numerical overflow
 			if (this.valueLength > int.MaxValue - this.index)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 			this.valueLength += this.index;
 
@@ -506,7 +507,7 @@ namespace hpack
 			// Check for numerical overflow
 			if (maxSize > int.MaxValue - this.index)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 
 			this.SetDynamicTableSize(this.index + maxSize);
@@ -723,7 +724,7 @@ namespace hpack
 			var readBytes = input.Read(buf, 0, lengthToRead);
 			if (readBytes != length)
 			{
-				throw new IOException("decompression failure");
+				throw new IOException(DECOMPRESSION_FAILURE);
 			}
 
 			if (this.huffmanEncoded)
@@ -765,7 +766,7 @@ namespace hpack
 			}
 			// Value exceeds Integer.MAX_VALUE
 			input.BaseStream.Position = markedPosition;
-			throw new IOException("decompression failure");
+			throw new IOException(DECOMPRESSION_FAILURE);
 		}
 	}
 }

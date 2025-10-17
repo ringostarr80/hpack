@@ -24,12 +24,12 @@ namespace hpack
 		/// <summary>
 		/// Huffman Decoder
 		/// </summary>
-		public static readonly HuffmanDecoder DECODER = new HuffmanDecoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
+		public static readonly HuffmanDecoder DECODER = new(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
 
 		/// <summary>
 		/// Huffman Encoder
 		/// </summary>
-		public static readonly HuffmanEncoder ENCODER = new HuffmanEncoder(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
+		public static readonly HuffmanEncoder ENCODER = new(HpackUtil.HUFFMAN_CODES, HpackUtil.HUFFMAN_CODE_LENGTHS);
 
 		private Huffman()
 		{

@@ -26,8 +26,8 @@ namespace hpack
 	/// </summary>
 	public class Encoder
 	{
-		private static int BUCKET_SIZE = 17;
-		private static byte[] EMPTY = Array.Empty<byte>();
+		private static readonly int BUCKET_SIZE = 17;
+		private static readonly byte[] EMPTY = [];
 
 		// for testing
 		private bool useIndexing;
@@ -36,7 +36,7 @@ namespace hpack
 
 		// a linked hash map of header fields
 		private readonly HeaderEntry[] headerFields = new HeaderEntry[BUCKET_SIZE];
-		private readonly HeaderEntry head = new HeaderEntry(-1, EMPTY, EMPTY, int.MaxValue, null);
+		private readonly HeaderEntry head = new(-1, EMPTY, EMPTY, int.MaxValue, null);
 		private int size;
 		private int capacity;
 
