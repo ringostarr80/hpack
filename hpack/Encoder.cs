@@ -385,8 +385,8 @@ namespace hpack
 			{
 				return null;
 			}
-			var h = Encoder.Hash(name);
-			var i = Encoder.Index(h);
+			var h = Encoder.GetHeaderFieldHash(name);
+			var i = Encoder.GetHashCodeIndex(h);
 			for (var e = headerFields[i]; e != null; e = e.Next)
 			{
 				if (e.Hash == h && HpackUtil.Equals(name, e.Name) && HpackUtil.Equals(value, e.Value))
@@ -409,8 +409,8 @@ namespace hpack
 			{
 				return -1;
 			}
-			var h = Encoder.Hash(name);
-			var i = Encoder.Index(h);
+			var h = Encoder.GetHeaderFieldHash(name);
+			var i = Encoder.GetHashCodeIndex(h);
 			var index = -1;
 			for (var e = headerFields[i]; e != null; e = e.Next)
 			{
@@ -467,8 +467,8 @@ namespace hpack
 			var copyOfName = name.ToArray();
 			var copyOfValue = value.ToArray();
 
-			var h = Encoder.Hash(copyOfName);
-			var i = Encoder.Index(h);
+			var h = Encoder.GetHeaderFieldHash(copyOfName);
+			var i = Encoder.GetHashCodeIndex(h);
 			var old = this.headerFields[i];
 			var e = new HeaderEntry(h, copyOfName, copyOfValue, this.head.Before.Index - 1, old);
 			this.headerFields[i] = e;
@@ -487,7 +487,7 @@ namespace hpack
 			}
 			var eldest = this.head.After;
 			var h = eldest.Hash;
-			var i = Encoder.Index(h);
+			var i = Encoder.GetHashCodeIndex(h);
 			var prev = this.headerFields[i];
 			var e = prev;
 			while (e != null)
@@ -530,7 +530,7 @@ namespace hpack
 		/// </summary>
 		/// <returns><c>true</c> if hash name; otherwise, <c>false</c>.</returns>
 		/// <param name="name">Name.</param>
-		private static int Hash(byte[] name)
+		private static int GetHeaderFieldHash(byte[] name)
 		{
 			var h = 0;
 			for (var i = 0; i < name.Length; i++)
@@ -555,7 +555,7 @@ namespace hpack
 		/// Returns the index into the hash table for the hash code h.
 		/// </summary>
 		/// <param name="h">The height.</param>
-		private static int Index(int h)
+		private static int GetHashCodeIndex(int h)
 		{
 			return h % BUCKET_SIZE;
 		}
