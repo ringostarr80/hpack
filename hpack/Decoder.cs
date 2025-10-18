@@ -151,6 +151,57 @@ namespace hpack
 			}
 		}
 
+		private void ProcessIndexedHeaderField(sbyte b, IHeaderListener headerListener)
+		{
+			this.index = b & 0x7F;
+			if (this.index == 0)
+			{
+				throw new IOException($"illegal index value ({this.index})");
+			}
+			else if (this.index == 0x7F)
+			{
+				this.state = State.READ_INDEXED_HEADER;
+			}
+			else
+			{
+				this.IndexHeader(this.index, headerListener);
+			}
+		}
+
+		private void ProcessLiteralHeaderField(sbyte b)
+		{
+			this.indexType = HpackUtil.IndexType.INCREMENTAL;
+			this.index = b & 0x3F;
+			if (this.index == 0)
+			{
+				this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
+			}
+			else if (this.index == 0x3F)
+			{
+				this.state = State.READ_INDEXED_HEADER_NAME;
+			}
+			else
+			{
+				// Index was stored as the prefix
+				this.ReadName(this.index);
+				this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
+			}
+		}
+
+		private void ProcessDynamicTableSizeUpdate(sbyte b)
+        {
+            this.index = b & 0x1F;
+			if (this.index == 0x1F)
+			{
+				this.state = State.READ_MAX_DYNAMIC_TABLE_SIZE;
+			}
+			else
+			{
+				this.SetDynamicTableSize(index);
+				this.state = State.READ_HEADER_REPRESENTATION;
+			}
+        }
+
 		private bool DecodeStateReadHeaderRepresentation(BinaryReader input, IHeaderListener headerListener)
 		{
 			var b = input.ReadSByte();
@@ -162,61 +213,19 @@ namespace hpack
 
 			if (b < 0)
 			{
-				// Indexed Header Field
-				this.index = b & 0x7F;
-				if (this.index == 0)
-				{
-					throw new IOException("illegal index value (" + this.index + ")");
-				}
-				else if (this.index == 0x7F)
-				{
-					this.state = State.READ_INDEXED_HEADER;
-				}
-				else
-				{
-					this.IndexHeader(this.index, headerListener);
-				}
-
+				this.ProcessIndexedHeaderField(b, headerListener);
 				return true;
 			}
 
 			if ((b & 0x40) == 0x40)
 			{
-				// Literal Header Field with Incremental Indexing
-				this.indexType = HpackUtil.IndexType.INCREMENTAL;
-				this.index = b & 0x3F;
-				if (this.index == 0)
-				{
-					this.state = State.READ_LITERAL_HEADER_NAME_LENGTH_PREFIX;
-				}
-				else if (this.index == 0x3F)
-				{
-					this.state = State.READ_INDEXED_HEADER_NAME;
-				}
-				else
-				{
-					// Index was stored as the prefix
-					this.ReadName(this.index);
-					this.state = State.READ_LITERAL_HEADER_VALUE_LENGTH_PREFIX;
-				}
-
+				this.ProcessLiteralHeaderField(b);
 				return true;
 			}
 
 			if ((b & 0x20) == 0x20)
 			{
-				// Dynamic Table Size Update
-				this.index = b & 0x1F;
-				if (this.index == 0x1F)
-				{
-					this.state = State.READ_MAX_DYNAMIC_TABLE_SIZE;
-				}
-				else
-				{
-					this.SetDynamicTableSize(index);
-					this.state = State.READ_HEADER_REPRESENTATION;
-				}
-
+				this.ProcessDynamicTableSizeUpdate(b);
 				return true;
 			}
 
