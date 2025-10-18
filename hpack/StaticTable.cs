@@ -24,12 +24,14 @@ namespace hpack
 	/// </summary>
 	public static class StaticTable
 	{
+		private const string STATUS_HEADER_FIELD = ":status";
+
 		/// <summary>
 		/// The static table
 		/// Appendix A: Static Table
 		/// </summary>
 		/// <note type="rfc">http://tools.ietf.org/html/rfc7541#appendix-A</note>
-		private static List<HeaderField> STATIC_TABLE = new List<HeaderField>() {
+		private static readonly List<HeaderField> STATIC_TABLE = new List<HeaderField>() {
 			/*  1 */new HeaderField(":authority", string.Empty),
 			/*  2 */new HeaderField(":method", "GET"),
 			/*  3 */new HeaderField(":method", "POST"),
@@ -37,13 +39,13 @@ namespace hpack
 			/*  5 */new HeaderField(":path", "/index.html"),
 			/*  6 */new HeaderField(":scheme", "http"),
 			/*  7 */new HeaderField(":scheme", "https"),
-			/*  8 */new HeaderField(":status", "200"),
-			/*  9 */new HeaderField(":status", "204"),
-			/* 10 */new HeaderField(":status", "206"),
-			/* 11 */new HeaderField(":status", "304"),
-			/* 12 */new HeaderField(":status", "400"),
-			/* 13 */new HeaderField(":status", "404"),
-			/* 14 */new HeaderField(":status", "500"),
+			/*  8 */new HeaderField(STATUS_HEADER_FIELD, "200"),
+			/*  9 */new HeaderField(STATUS_HEADER_FIELD, "204"),
+			/* 10 */new HeaderField(STATUS_HEADER_FIELD, "206"),
+			/* 11 */new HeaderField(STATUS_HEADER_FIELD, "304"),
+			/* 12 */new HeaderField(STATUS_HEADER_FIELD, "400"),
+			/* 13 */new HeaderField(STATUS_HEADER_FIELD, "404"),
+			/* 14 */new HeaderField(STATUS_HEADER_FIELD, "500"),
 			/* 15 */new HeaderField("accept-charset", string.Empty),
 			/* 16 */new HeaderField("accept-encoding", "gzip, deflate"),
 			/* 17 */new HeaderField("accept-language", string.Empty),
