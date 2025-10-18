@@ -37,4 +37,6 @@ jobs:
       run: dotnet pack -c Release -o out -p:Version=$PACKAGE_VERSION -p:ContinuousIntegrationBuild=true
 
     - name: Publish to NuGet
-      run: dotnet nuget push out/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push out/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
