@@ -45,7 +45,7 @@ namespace hpack
 			for(var i = 0; i < 4; i++) {
 				buf[i] = (byte)0xFF;
 			}
-			Assert.Throws<IOException>(delegate { Huffman.DECODER.Decode(buf); });
+			Assert.Throws<IOException>((Action)(() => Huffman.DECODER.Decode(buf)));
 		}
 
 		[Test]
@@ -53,7 +53,7 @@ namespace hpack
 		{
 			var buf = new byte[1];
 			buf[0] = 0x00; // '0', invalid padding
-			Assert.Throws<IOException>(delegate { Huffman.DECODER.Decode(buf); });
+			Assert.Throws<IOException>((Action)(() => Huffman.DECODER.Decode(buf)));
 		}
 
 		[Test]
