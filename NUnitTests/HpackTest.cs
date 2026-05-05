@@ -16,21 +16,16 @@
  */
 using System;
 
-namespace hpack
+namespace NUnitTests
 {
 	//@RunWith(Parameterized.class)
-	public class HpackTest
-	{
+	public class HpackTest(String fileName)
+    {
 		//private static String TEST_DIR = "/hpack/";
 
-		//private String fileName;
+		private String fileName = fileName;
 
-		public HpackTest(String fileName)
-		{
-			//this.fileName = fileName;
-		}
-
-		/*
+        /*
 		//@Parameters(name = "{0}")
 		public static Collection<Object[]> data()
 		{
@@ -56,5 +51,5 @@ namespace hpack
 			testCase.testDecompress();
 		}
 		*/
-	}
+    }
 }

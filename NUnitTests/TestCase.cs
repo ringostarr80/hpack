@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace hpack
+namespace NUnitTests
 {
 	class TestCase
 	{
