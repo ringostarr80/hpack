@@ -18,28 +18,30 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+
+using hpack;
 using NUnit.Framework;
 
-namespace hpack
+namespace NUnitTests
 {
 	public class HuffmanTest
 	{
 		[Test]
-		public void testHuffman()
+		public void TestHuffman()
 		{
 			var s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 			for(var i = 0; i < s.Length; i++) {
-				roundTrip(s.Substring(0, i));
+				RoundTrip(s[..i]);
 			}
 
 			var random = new Random(123456789); // DevSkim: ignore DS148264
 			var buf = new byte[4096];
 			random.NextBytes(buf);
-			roundTrip(buf);
+			RoundTrip(buf);
 		}
 
 		[Test]
-		public void testDecodeEOS()
+		public void TestDecodeEOS()
 		{
 			var buf = new byte[4];
 			for(var i = 0; i < 4; i++) {
@@ -49,7 +51,7 @@ namespace hpack
 		}
 
 		[Test]
-		public void testDecodeIllegalPadding()
+		public void TestDecodeIllegalPadding()
 		{
 			var buf = new byte[1];
 			buf[0] = 0x00; // '0', invalid padding
@@ -57,7 +59,7 @@ namespace hpack
 		}
 
 		[Test]
-		public void testDecodeExtraPadding()
+		public void TestDecodeExtraPadding()
 		{
 			var buf = new byte[2];
 			buf[0] = 0x0F; // '1', 'EOS'
@@ -66,30 +68,28 @@ namespace hpack
 			Assert.That(decoded, Is.EqualTo(new byte[] { 0x31 }));
 		}
 
-		private static void roundTrip(String s)
+		private static void RoundTrip(String s)
 		{
-			roundTrip(Huffman.ENCODER, Huffman.DECODER, s);
+			RoundTrip(Huffman.ENCODER, Huffman.DECODER, s);
 		}
 
-		private static void roundTrip(HuffmanEncoder encoder, HuffmanDecoder decoder, string s)
+		private static void RoundTrip(HuffmanEncoder encoder, HuffmanDecoder decoder, string s)
 		{
-			roundTrip(encoder, decoder, Encoding.UTF8.GetBytes(s));
+			RoundTrip(encoder, decoder, Encoding.UTF8.GetBytes(s));
 		}
 
-		private static void roundTrip(byte[] buf)
+		private static void RoundTrip(byte[] buf)
 		{
-			roundTrip(Huffman.ENCODER, Huffman.DECODER, buf);
+			RoundTrip(Huffman.ENCODER, Huffman.DECODER, buf);
 		}
 
-		private static void roundTrip(HuffmanEncoder encoder, HuffmanDecoder decoder, byte[] buf)
+		private static void RoundTrip(HuffmanEncoder encoder, HuffmanDecoder decoder, byte[] buf)
 		{
-			using(var baos = new MemoryStream()) {
-				using(var dos = new BinaryWriter(baos)) {
-					encoder.Encode(dos, buf);
-					var actualBytes = decoder.Decode(baos.ToArray());
-					Assert.That(buf.SequenceEqual(actualBytes), Is.True);
-				}
-			}
-		}
+            using var baos = new MemoryStream();
+            using var dos = new BinaryWriter(baos);
+            encoder.Encode(dos, buf);
+            var actualBytes = decoder.Decode(baos.ToArray());
+            Assert.That(buf.SequenceEqual(actualBytes), Is.True);
+        }
 	}
 }

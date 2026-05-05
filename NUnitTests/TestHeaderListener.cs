@@ -16,11 +16,13 @@
  */
 using System.Collections.Generic;
 
-namespace hpack
+using hpack;
+
+namespace NUnitTests
 {
 	class TestHeaderListener : IHeaderListener
 	{
-		private List<HeaderField> headers;
+		private readonly List<HeaderField> headers;
 
 		TestHeaderListener(List<HeaderField> headers)
 		{

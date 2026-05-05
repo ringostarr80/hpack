@@ -18,9 +18,10 @@ using System;
 using System.IO;
 using System.Text;
 
+using hpack;
 using NUnit.Framework;
 
-namespace hpack
+namespace NUnitTests
 {
 	public class HeaderListener : IHeaderListener
 	{
@@ -33,23 +34,18 @@ namespace hpack
 	[TestFixture]
 	public class DecoderTest
 	{
-		private static int MAX_HEADER_SIZE = 8192;
-		private static int MAX_HEADER_TABLE_SIZE = 4096;
+		private static readonly int MAX_HEADER_SIZE = 8192;
+		private static readonly int MAX_HEADER_TABLE_SIZE = 4096;
 
-		private Decoder decoder;
+		private hpack.Decoder decoder;
 		private IHeaderListener mockListener;
 
-		private static string hex(string s)
+		private static string ToHexUtf8(string s)
 		{
 			return Hex.EncodeHexString(Encoding.UTF8.GetBytes(s));
 		}
 
-		private static byte[] getBytes(string s)
-		{
-			return Encoding.UTF8.GetBytes(s);
-		}
-
-		private void decode(string encoded)
+		private void DecodeHexInput(string encoded)
 		{
 			var b = Hex.DecodeHex(encoded.ToCharArray());
 			var input = new byte[b.Length];
@@ -62,13 +58,13 @@ namespace hpack
 		[SetUp]
 		public void SetUp()
 		{
-			this.decoder = new Decoder(MAX_HEADER_SIZE, MAX_HEADER_TABLE_SIZE);
+			this.decoder = new hpack.Decoder(MAX_HEADER_SIZE, MAX_HEADER_TABLE_SIZE);
 			//this.mockListener = mock(HeaderListener.class);
 			this.mockListener = new HeaderListener();
 		}
 
 		[Test]
-		public void testIncompleteIndex()
+		public void TestIncompleteIndex()
 		{
 			// Verify incomplete indices are unread
 			var compressed = Hex.DecodeHex("FFF0".ToCharArray());
@@ -87,92 +83,92 @@ namespace hpack
 		}
 
 		[Test]
-		public void testUnusedIndex()
+		public void TestUnusedIndex()
 		{
 			// Index 0 is not used
-			Assert.Throws<IOException>((Action)(() => this.decode("80")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("80")));
 		}
 
 		[Test]
-		public void testIllegalIndex()
+		public void TestIllegalIndex()
 		{
 			// Index larger than the header table
-			Assert.Throws<IOException>((Action)(() => this.decode("FF00")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("FF00")));
 		}
 
 		[Test]
-		public void testInsidiousIndex()
+		public void TestInsidiousIndex()
 		{
 			// Insidious index so the last shift causes sign overflow
-			Assert.Throws<IOException>((Action)(() => this.decode("FF8080808008")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("FF8080808008")));
 		}
 
 		[Test]
-		public void testDynamicTableSizeUpdate()
+		public void TestDynamicTableSizeUpdate()
 		{
-			this.decode("20");
+			DecodeHexInput("20");
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			this.decode("3FE11F");
+			DecodeHexInput("3FE11F");
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.EqualTo(4096));
 		}
 
 		[Test]
-		public void testDynamicTableSizeUpdateRequired()
+		public void TestDynamicTableSizeUpdateRequired()
 		{
 			this.decoder.SetMaxHeaderTableSize(32);
-			this.decode("3F00");
+			DecodeHexInput("3F00");
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.EqualTo(31));
 		}
 
 		[Test]
-		public void testIllegalDynamicTableSizeUpdate()
+		public void TestIllegalDynamicTableSizeUpdate()
 		{
 			// max header table size = MAX_HEADER_TABLE_SIZE + 1
-			Assert.Throws<IOException>((Action)(() => this.decode("3FE21F")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("3FE21F")));
 		}
 
 		[Test]
-		public void testInsidiousMaxDynamicTableSize()
+		public void TestInsidiousMaxDynamicTableSize()
 		{
 			// max header table size sign overflow
-			Assert.Throws<IOException>((Action)(() => this.decode("3FE1FFFFFF07")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("3FE1FFFFFF07")));
 		}
 
 		[Test]
-		public void testReduceMaxDynamicTableSize()
+		public void TestReduceMaxDynamicTableSize()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			this.decode("2081");
+			DecodeHexInput("2081");
 		}
 
 		[Test]
-		public void testTooLargeDynamicTableSizeUpdate()
+		public void TestTooLargeDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			Assert.Throws<IOException>((Action)(() => this.decode("21"))); // encoder max header table size not small enough
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("21"))); // encoder max header table size not small enough
 		}
 
 		[Test]
-		public void testMissingDynamicTableSizeUpdate()
+		public void TestMissingDynamicTableSizeUpdate()
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			Assert.Throws<IOException>((Action)(() => this.decode("81")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("81")));
 		}
 
 		[Test]
-		public void testLiteralWithIncrementalIndexingWithEmptyName()
+		public void TestLiteralWithIncrementalIndexingWithEmptyName()
 		{
-			Assert.Throws<IOException>((Action)(() => this.decode("000005" + hex("value"))));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("000005" + ToHexUtf8("value"))));
 		}
 
 		[Test]
-		public void testLiteralWithIncrementalIndexingCompleteEviction()
+		public void TestLiteralWithIncrementalIndexingCompleteEviction()
 		{
 			// Verify indexed host header
-			this.decode("4004" + hex("name") + "05" + hex("value"));
+			DecodeHexInput("4004" + ToHexUtf8("name") + "05" + ToHexUtf8("value"));
 			//verify(this.mockListener).addHeader(getBytes("name"), getBytes("value"), false);
 			//verifyNoMoreInteractions(this.mockListener);
 			Assert.That(decoder.EndHeaderBlock(), Is.False);
@@ -188,19 +184,19 @@ namespace hpack
 			for(var i = 0; i < 4096; i++) {
 				sb.Append("61"); // 'a'
 			}
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verify(this.mockListener).addHeader(getBytes(":authority"), getBytes(value), false);
 			//verifyNoMoreInteractions(this.mockListener);
 			Assert.That(decoder.EndHeaderBlock(), Is.False);
 
 			// Verify next header is inserted at index 62
-			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
+			DecodeHexInput("4004" + ToHexUtf8("name") + "05" + ToHexUtf8("value") + "BE");
 			//verify(this.mockListener, times(2)).addHeader(getBytes("name"), getBytes("value"), false);
 			//verifyNoMoreInteractions(this.mockListener);
 		}
 
 		[Test]
-		public void testLiteralWithIncrementalIndexingWithLargeName()
+		public void TestLiteralWithIncrementalIndexingWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
 			var sb = new StringBuilder();
@@ -209,49 +205,49 @@ namespace hpack
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify next header is inserted at index 62
-			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
+			DecodeHexInput("4004" + ToHexUtf8("name") + "05" + ToHexUtf8("value") + "BE");
 			//verify(this.mockListener, times(2)).addHeader(getBytes("name"), getBytes("value"), false);
 			//verifyNoMoreInteractions(this.mockListener);
 		}
 
 		[Test]
-		public void testLiteralWithIncrementalIndexingWithLargeValue()
+		public void TestLiteralWithIncrementalIndexingWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
 			var sb = new StringBuilder();
 			sb.Append("4004");
-			sb.Append(hex("name"));
+			sb.Append(ToHexUtf8("name"));
 			sb.Append("7F813F");
 			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify next header is inserted at index 62
-			this.decode("4004" + hex("name") + "05" + hex("value") + "BE");
+			DecodeHexInput("4004" + ToHexUtf8("name") + "05" + ToHexUtf8("value") + "BE");
 			//verify(this.mockListener, times(2)).addHeader(getBytes("name"), getBytes("value"), false);
 			//verifyNoMoreInteractions(this.mockListener);
 		}
 
 		[Test]
-		public void testLiteralWithoutIndexingWithEmptyName()
+		public void TestLiteralWithoutIndexingWithEmptyName()
 		{
-			Assert.Throws<IOException>((Action)(() => this.decode("000005" + hex("value"))));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("000005" + ToHexUtf8("value"))));
 		}
 
 		[Test]
-		public void testLiteralWithoutIndexingWithLargeName()
+		public void TestLiteralWithoutIndexingWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
 			var sb = new StringBuilder();
@@ -260,45 +256,45 @@ namespace hpack
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("BE")));
 		}
 
 		[Test]
-		public void testLiteralWithoutIndexingWithLargeValue()
+		public void TestLiteralWithoutIndexingWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
 			var sb = new StringBuilder();
 			sb.Append("0004");
-			sb.Append(hex("name"));
+			sb.Append(ToHexUtf8("name"));
 			sb.Append("7F813F");
 			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("BE")));
 		}
 
 		[Test]
-		public void testLiteralNeverIndexedWithEmptyName()
+		public void TestLiteralNeverIndexedWithEmptyName()
 		{
-			Assert.Throws<IOException>((Action)(() => this.decode("100005" + hex("value"))));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("100005" + ToHexUtf8("value"))));
 		}
 
 		[Test]
-		public void testLiteralNeverIndexedWithLargeName()
+		public void TestLiteralNeverIndexedWithLargeName()
 		{
 			// Ignore header name that exceeds max header size
 			var sb = new StringBuilder();
@@ -307,35 +303,35 @@ namespace hpack
 				sb.Append("61"); // 'a'
 			}
 			sb.Append("00");
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("BE")));
 		}
 
 		[Test]
-		public void testLiteralNeverIndexedWithLargeValue()
+		public void TestLiteralNeverIndexedWithLargeValue()
 		{
 			// Ignore header that exceeds max header size
 			var sb = new StringBuilder();
 			sb.Append("1004");
-			sb.Append(hex("name"));
+			sb.Append(ToHexUtf8("name"));
 			sb.Append("7F813F");
 			for(var i = 0; i < 8192; i++) {
 				sb.Append("61"); // 'a'
 			}
-			this.decode(sb.ToString());
+			DecodeHexInput(sb.ToString());
 			//verifyNoMoreInteractions(this.mockListener);
 
 			// Verify header block is reported as truncated
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
+			Assert.Throws<IOException>((Action)(() => DecodeHexInput("BE")));
 		}
 	}
 }

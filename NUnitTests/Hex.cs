@@ -17,7 +17,7 @@
 using System;
 using System.IO;
 
-namespace hpack
+namespace NUnitTests
 {
 	/**
 	 * Extracted from org/apache/commons/codec/binary/Hex.java
@@ -28,7 +28,7 @@ namespace hpack
 		/**
 		 * Used to build output as Hex
 		 */
-		private static char[] DIGITS_LOWER = {
+		private static readonly char[] DIGITS_LOWER = {
 			'0',
 			'1',
 			'2',
@@ -50,7 +50,7 @@ namespace hpack
 		/**
 		 * Used to build output as Hex
 		 */
-		private static char[] DIGITS_UPPER = {
+		private static readonly char[] DIGITS_UPPER = {
 			'0',
 			'1',
 			'2',
@@ -92,9 +92,9 @@ namespace hpack
 
 			// two characters form the hex value.
 			for(int i = 0, j = 0; j < len; i++) {
-				var f = Hex.ToDigit(data[j], j) << 4;
+				var f = ToDigit(data[j], j) << 4;
 				j++;
-				f = f | Hex.ToDigit(data[j], j);
+				f |= ToDigit(data[j], j);
 				j++;
 				output[i] = (sbyte)(f & 0xFF);
 			}
@@ -113,7 +113,7 @@ namespace hpack
 		 */
 		public static char[] EncodeHex(byte[] data)
 		{
-			return Hex.EncodeHex(data, true);
+			return EncodeHex(data, true);
 		}
 
 		/**
@@ -130,7 +130,7 @@ namespace hpack
 		 */
 		public static char[] EncodeHex(byte[] data, bool toLowerCase)
 		{
-			return Hex.EncodeHex(data, toLowerCase ? DIGITS_LOWER : DIGITS_UPPER);
+			return EncodeHex(data, toLowerCase ? DIGITS_LOWER : DIGITS_UPPER);
 		}
 
 		/**
@@ -168,7 +168,7 @@ namespace hpack
 		 */
 		public static String EncodeHexString(byte[] data)
 		{
-			return new String(Hex.EncodeHex(data));
+			return new String(EncodeHex(data));
 		}
 
 		/**
