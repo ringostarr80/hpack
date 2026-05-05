@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.IO;
 using System.Text;
 
@@ -89,21 +90,21 @@ namespace hpack
 		public void testUnusedIndex()
 		{
 			// Index 0 is not used
-			Assert.Throws<IOException>(delegate { this.decode("80"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("80")));
 		}
 
 		[Test]
 		public void testIllegalIndex()
 		{
 			// Index larger than the header table
-			Assert.Throws<IOException>(delegate { this.decode("FF00"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("FF00")));
 		}
 
 		[Test]
 		public void testInsidiousIndex()
 		{
 			// Insidious index so the last shift causes sign overflow
-			Assert.Throws<IOException>(delegate { this.decode("FF8080808008"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("FF8080808008")));
 		}
 
 		[Test]
@@ -127,14 +128,14 @@ namespace hpack
 		public void testIllegalDynamicTableSizeUpdate()
 		{
 			// max header table size = MAX_HEADER_TABLE_SIZE + 1
-			Assert.Throws<IOException>(delegate { this.decode("3FE21F"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("3FE21F")));
 		}
 
 		[Test]
 		public void testInsidiousMaxDynamicTableSize()
 		{
 			// max header table size sign overflow
-			Assert.Throws<IOException>(delegate { this.decode("3FE1FFFFFF07"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("3FE1FFFFFF07")));
 		}
 
 		[Test]
@@ -150,7 +151,7 @@ namespace hpack
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			Assert.Throws<IOException>(delegate { this.decode("21"); }); // encoder max header table size not small enough
+			Assert.Throws<IOException>((Action)(() => this.decode("21"))); // encoder max header table size not small enough
 		}
 
 		[Test]
@@ -158,13 +159,13 @@ namespace hpack
 		{
 			this.decoder.SetMaxHeaderTableSize(0);
 			Assert.That(decoder.GetMaxHeaderTableSize(), Is.Zero);
-			Assert.Throws<IOException>(delegate { this.decode("81"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("81")));
 		}
 
 		[Test]
 		public void testLiteralWithIncrementalIndexingWithEmptyName()
 		{
-			Assert.Throws<IOException>(delegate { this.decode("000005" + hex("value")); });
+			Assert.Throws<IOException>((Action)(() => this.decode("000005" + hex("value"))));
 		}
 
 		[Test]
@@ -246,7 +247,7 @@ namespace hpack
 		[Test]
 		public void testLiteralWithoutIndexingWithEmptyName()
 		{
-			Assert.Throws<IOException>(delegate { this.decode("000005" + hex("value")); });
+			Assert.Throws<IOException>((Action)(() => this.decode("000005" + hex("value"))));
 		}
 
 		[Test]
@@ -266,7 +267,7 @@ namespace hpack
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>(delegate { this.decode("BE"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
 		}
 
 		[Test]
@@ -287,13 +288,13 @@ namespace hpack
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>(delegate { this.decode("BE"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
 		}
 
 		[Test]
 		public void testLiteralNeverIndexedWithEmptyName()
 		{
-			Assert.Throws<IOException>(delegate { this.decode("100005" + hex("value")); });
+			Assert.Throws<IOException>((Action)(() => this.decode("100005" + hex("value"))));
 		}
 
 		[Test]
@@ -313,7 +314,7 @@ namespace hpack
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>(delegate { this.decode("BE"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
 		}
 
 		[Test]
@@ -334,7 +335,7 @@ namespace hpack
 			Assert.That(decoder.EndHeaderBlock(), Is.True);
 
 			// Verify table is unmodified
-			Assert.Throws<IOException>(delegate { this.decode("BE"); });
+			Assert.Throws<IOException>((Action)(() => this.decode("BE")));
 		}
 	}
 }
