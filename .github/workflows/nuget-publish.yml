@@ -1,23 +1,39 @@
 name: Publish to NuGet
 
-permissions:
-  contents: read
-  pull-requests: write
+# deny-all by default; each job re-grants only what it needs
+permissions: {}
 
 on:
   push:
     tags:
       - '*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # never cancel an in-flight publish — could leave the release in an inconsistent state
+  cancel-in-progress: false
+
 jobs:
   build:
+    name: Build & Publish
     runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 15
+    permissions:
+      # required by actions/checkout to fetch the repository
+      contents: read
+      # required to mint an OIDC token for NuGet Trusted Publishing
+      id-token: write
 
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
 
     - name: Extract version from tag
-      run: echo "PACKAGE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      env:
+        REF_NAME: ${{ github.ref_name }}
+      run: echo "PACKAGE_VERSION=${REF_NAME}" >> "$GITHUB_ENV"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
@@ -34,9 +50,15 @@ jobs:
       run: dotnet test --no-build
 
     - name: Pack
-      run: dotnet pack -c Release -o out -p:Version=$PACKAGE_VERSION -p:ContinuousIntegrationBuild=true
+      run: dotnet pack -c Release -o out -p:Version="$PACKAGE_VERSION" -p:ContinuousIntegrationBuild=true
+
+    - name: NuGet login (OIDC → short-lived API key)
+      id: nuget-login
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+      with:
+        user: ${{ secrets.NUGET_USER }}
 
     - name: Publish to NuGet
       env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: dotnet nuget push out/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+      run: dotnet nuget push out/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
